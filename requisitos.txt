@@ -1,0 +1,22 @@
+-> instalar todas as dependencias
+    npm init -y
+    npm install typescript ts-node @types/node --save-dev
+    npx tsc --init
+    npm install prisma --save-dev
+    npm install @prisma/client
+    npx prisma init --datasource-provider sqlite
+    npm i eslint
+    npm install --save @types/eslint
+    npm init @eslint/configb 
+
+-> rodar o prisma
+    npx prisma db push
+
+-> criar uma migration
+    npx prisma migrate dev
+
+-> puxar info do banco de dados
+    npx prisma generate
+
+-> forma de visualizar nativa do prisma
+    npx prisma studio

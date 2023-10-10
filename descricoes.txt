@@ -1,0 +1,30 @@
+USUARIO
+    id @id @default(autoincrement)
+    nome string 
+    email string @unique
+    senha string
+    foto? string
+    role string 
+@@map "usuarios"
+
+ARTISTA
+    id @id @default(autoincrement)
+    nome string
+    foto string
+    numeroStreams number
+@@map "artistas"
+
+MUSICA
+    id @id @default(autoincrement)
+    nome string
+    genero string
+    album string
+@@map "musicas"
+
+relações: 
+        uma musica com um (ou vários?) artistas
+        uma musica pode ser escutada por varios usuarios
+        um usuario pode ouvir várias musicas
+
+* Adicionar as relações entre as entidades
+* Criar um CRUD no service para cada uma das entidades
