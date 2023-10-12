@@ -28,3 +28,37 @@ relações:
 
 * Adicionar as relações entre as entidades
 * Criar um CRUD no service para cada uma das entidades
+
+
+
+model Usuario {
+  id        Int      @id @default(autoincrement())
+  nome      String
+  email     String   @unique
+  senha     String
+  foto?     String
+  role      String
+  # Relacionamento Muitos-para-Muitos com Músicas (Usuários podem ouvir várias músicas)
+  musicas   Musica[] @relation("Ouvintes", references: [id])
+}
+
+model Artista {
+  id                Int     @id @default(autoincrement())
+  nome              String
+  numero_identificacao Int @unique
+  foto              String?
+  numero_streams    Int
+  # Relacionamento Um-para-Muitos com Músicas (um artista pode ter várias músicas)
+  musicas           Musica[]
+}
+
+model Musica {
+  id         Int      @id @default(autoincrement())
+  nome       String
+  genero     String
+  album      String
+  artista_id Int      // Chave estrangeira referenciando Artistas.id
+  artista    Artista  @relation(fields: [artista_id], references: [id])
+  # Relacionamento Muitos-para-Muitos com Usuários (Músicas podem ser ouvidas por vários usuários)
+  ouvintes   Usuario[] @relation("Ouvintes", references: [id])
+}
