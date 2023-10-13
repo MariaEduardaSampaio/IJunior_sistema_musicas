@@ -17,6 +17,13 @@ class UserService {
 		return user;
 	}
 
+	async readUser(body: User) {
+		const user = await prisma.user.findUnique({
+			where: { id: body.id }
+		});
+		return user;
+	}
+
 	async updateUser(body: User) {
 		const user = await prisma.user.update({
 			data: {
@@ -26,9 +33,10 @@ class UserService {
 				password: body.password,
 				role: body.role,
 			},
-			where: { id: body.id}
+			where: { id: body.id }
 		})
 		return user;
 	}
+
 }
 export default new UserService();
