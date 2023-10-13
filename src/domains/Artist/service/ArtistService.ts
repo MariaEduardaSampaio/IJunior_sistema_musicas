@@ -10,5 +10,17 @@ class ArtistService {
         return artist;
 	}
 
+	async updateArtist(body: Artist) {
+		const artist = await prisma.artist.update({
+			data: {
+				name: body.name,
+				photo: body.photo,
+				streams: body.streams,
+			},
+			where: { id: body.id}
+		})
+		return artist;
+	}
+
 }
 export default new ArtistService();

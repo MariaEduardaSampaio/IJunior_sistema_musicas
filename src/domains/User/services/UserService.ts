@@ -17,6 +17,25 @@ class UserService {
 		return user;
 	}
 
+	async readByEmail(email : string) {
+		const user = await prisma.user.findFirst({
+			where: {email}
+		});
+		return user;
+	}
+
+	async readById(id : number) {
+		const user = await prisma.user.findFirst({
+			where: {id}
+		});
+		return user;
+	}
+
+	// async read() {
+	// 	const users = await prisma.user.findMany();
+	// 	return users;
+	// }
+
 	async updateUser(body: User) {
 		const user = await prisma.user.update({
 			data: {
