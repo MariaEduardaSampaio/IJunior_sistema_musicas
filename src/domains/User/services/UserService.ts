@@ -17,7 +17,6 @@ class UserService {
 		return user;
 	}
 
-
 	async updateUser(body: User) {
 		const user = await prisma.user.update({
 			data: {
