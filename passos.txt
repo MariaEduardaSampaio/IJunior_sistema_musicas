@@ -14,7 +14,7 @@
 2. executar npx prisma generate: regenerará os arq ts que 
 o prisma usa para interagir com o banco de dados
 
-3. executar prisma migrate dev ou npx prisma db push:
+3. executar npx prisma migrate dev:
 cria uma nova migração que representa as alterações no banco
 de dados. isso cria um arquivo de migração que descreve as
 alterações necessárias no banco de dados
