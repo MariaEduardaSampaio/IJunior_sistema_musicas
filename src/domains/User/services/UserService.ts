@@ -28,6 +28,7 @@ class UserService {
 			},
 			where: { id: body.id}
 		})
+		return user;
 	}
 }
 export default new UserService();
