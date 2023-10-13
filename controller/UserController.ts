@@ -12,4 +12,3 @@ export async function CriarEntidades(body: User) {
        }
            
 }
-

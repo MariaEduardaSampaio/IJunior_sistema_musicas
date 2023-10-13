@@ -5,11 +5,14 @@ import { CriarEntidades } from "./controller/UserController";
 async function main() {
     
     const body = {
-        email: 'teste@dominio.com',
+
+        email: 'test@hotmail.com',
         name: 'teste',
         role: 'ADMIN',
         password: 'oioi',
-    }as User
+        photo: null,
+        id: 0,
+    }
 
     const user = await CriarEntidades(body);
     console.log(user);
