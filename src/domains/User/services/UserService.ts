@@ -17,16 +17,16 @@ class UserService {
 		return user;
 	}
 
-	async readByEmail(email : string) {
-		const user = await prisma.user.findFirst({
-			where: {email}
+	async readUser(body: User) {
+		const user = await prisma.user.findUnique({
+			where: { id: body.id }
 		});
 		return user;
 	}
 
-	async readById(id : number) {
+	async readByEmail(email : string) {
 		const user = await prisma.user.findFirst({
-			where: {id}
+			where: {email}
 		});
 		return user;
 	}
@@ -45,9 +45,10 @@ class UserService {
 				password: body.password,
 				role: body.role,
 			},
-			where: { id: body.id}
+			where: { id: body.id }
 		})
 		return user;
 	}
+
 }
 export default new UserService();
