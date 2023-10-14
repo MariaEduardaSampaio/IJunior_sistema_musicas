@@ -4,7 +4,7 @@ import { Artist } from '@prisma/client'
 
 class ArtistService {
 	async createArtist(body: Artist){
-		const createArtist =await prisma.artist.create({
+		const createArtist = await prisma.artist.create({
 			data:{
 				name: body.name,
 				photo: body.photo,
@@ -15,16 +15,25 @@ class ArtistService {
 
 	}
 
-	async readArtist(body: Artist) {
+	async readArtistByID(body: Artist) {
+		const artistID = await prisma.artist.findUnique({
+			where: { id: body.id }
+		});
+		return artistID;
+	}
+
+	
+	async readArtistByName(name: string) {
 		const artist = await prisma.artist.findMany({
-			where: { name: body.name }
+			where: { name }
 		});
 		return artist;
 	}
+	
 
-	async deleteArtist(body: Artist) {
+	async deleteArtist(id: number) {
 		const deletedArtist = await prisma.artist.delete({
-			where: { id: body.id }
+			where: { id }
 		});
 		return deletedArtist;
 	}

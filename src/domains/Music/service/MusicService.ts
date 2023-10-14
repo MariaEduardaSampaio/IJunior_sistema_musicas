@@ -4,7 +4,7 @@ import { Music } from '@prisma/client'
 
 class MusicService {
 
-	async createMusic(body: Music){
+	async createMusic(body: Music, id: number){
 		const createMusic = await prisma.music.create({ 
 			data:{
 				name: body.name,
@@ -12,7 +12,7 @@ class MusicService {
 				album: body.album,
 				artist:{
 					connect:{
-						id: body.id
+						id: id
 					}
 				}
 			}
@@ -29,7 +29,7 @@ class MusicService {
 	}
 
 	async readById(id : number){
-		const music = await prisma.music.findFirst({
+		const music = await prisma.music.findUnique({
 			where: { id }
 		});
 		return music;
@@ -47,9 +47,9 @@ class MusicService {
 		return user;
 	}
 
-	async deleteMusic(body: Music) {
+	async deleteMusic(id: number) {
 		const deletedMusic = await prisma.music.delete({
-			where: { id: body.id }
+			where: { id }
 		});
 		return deletedMusic;
 	}
