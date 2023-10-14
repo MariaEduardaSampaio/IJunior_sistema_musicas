@@ -1,6 +1,7 @@
 import { User } from "@prisma/client";
 import { CriarEntidades } from "./controller/UserController";
 
+import Prisma from './client/client'
 
 async function main() {
     
@@ -20,3 +21,10 @@ async function main() {
     // const user = await UserService.create(body);
     // console.log(user);
 }
+
+main()
+    .then(() => console.log('Done'))
+    .catch((error) => console.error(error))
+    .finally( async () => {
+        await Prisma.$disconnect();
+    });
