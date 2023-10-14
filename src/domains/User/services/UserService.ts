@@ -17,6 +17,14 @@ class UserService {
 		return user;
 	}
 
+	async deleteUser(body: User){
+		const user = await prisma.user.delete({
+			where:{id: body.id}
+		});
+		return user;
+	}
+
+
 	async readUser(body: User) {
 		const user = await prisma.user.findUnique({
 			where: { id: body.id }

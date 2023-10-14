@@ -4,6 +4,23 @@ import { Music } from '@prisma/client'
 
 class MusicService {
 
+	async createMusic(body: Music){
+		const createMusic = await prisma.music.create({ 
+			data:{
+				name: body.name,
+				genre: body.genre,
+				album: body.album,
+				artist:{
+					connect:{
+						id: body.id
+					}
+				}
+			}
+		});
+		return createMusic;
+
+	}
+
 	async readByName(name : string){
 		const musics = await prisma.music.findMany({
 			where: { name }
