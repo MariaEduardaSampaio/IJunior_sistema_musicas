@@ -17,24 +17,24 @@ class UserService {
 		return user;
 	}
 
-	async deleteUser(id: number){
+	async deleteUser(id: number) {
 		const user = await prisma.user.delete({
-			where:{ id }
+			where: { id }
 		});
 		return user;
 	}
 
 
-	async readUser(id: number) {
+	async readUserByID(id: number) {
 		const user = await prisma.user.findUnique({
 			where: { id }
 		});
 		return user;
 	}
 
-	async readByEmail(email : string) {
+	async readByEmail(email: string) {
 		const user = await prisma.user.findUnique({
-			where: {email}
+			where: { email }
 		});
 		return user;
 	}
