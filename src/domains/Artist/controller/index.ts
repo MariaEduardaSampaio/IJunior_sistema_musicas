@@ -1,6 +1,15 @@
 import { Artist } from '@prisma/client';
 import ArtistService from '../service/ArtistService';
 
+export async function createArtist(body: Artist) {
+    try {
+        await ArtistService.createArtist(body)
+    }
+    catch (error) {
+        console.log(error)
+    }
+}
+
 export async function readArtistByID(body: Artist) {
     try {
         await ArtistService.readArtistByID(body.id)

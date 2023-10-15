@@ -36,3 +36,12 @@ export async function updateUser(body: User) {
         console.log(error)
     }
 }
+
+export async function deleteUser(id: number) {
+    try {
+        await UserService.deleteUser(id)
+    }
+    catch (error) {
+        console.log(error)
+    }
+}
