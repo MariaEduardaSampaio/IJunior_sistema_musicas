@@ -1,6 +1,5 @@
 import { Music } from '@prisma/client';
 import MusicService from '../service/MusicService';
-import { Artist } from '@prisma/client';
 
 
 export async function createMusic(body: Music, id: number) {
@@ -12,6 +11,23 @@ export async function createMusic(body: Music, id: number) {
     }
 }
 
+export async function readMusicByName (name: string) {
+    try {
+        await MusicService.readByName(name)
+    }
+    catch (error) {
+        console.log(error)
+    }
+}
+
+export async function readMusicByID (id: number) {
+    try {
+        await MusicService.readById(id)
+    }
+    catch (error) {
+        console.log(error)
+    }
+}
 
 export async function updateMusic(body: Music) {
     try {
