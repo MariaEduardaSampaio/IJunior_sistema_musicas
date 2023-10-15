@@ -1,4 +1,4 @@
-import { User } from "@prisma/client";
+ import { User } from "@prisma/client";
 import * as UserController from "./src/domains/User/controller/index";
 import Prisma from './client/client';
 
