@@ -28,6 +28,15 @@ export async function readArtistByName(body: Artist) {
     }
 }
 
+export async function updateArtist(body: Artist) {
+    try {
+        await ArtistService.updateArtist(body)
+    }
+    catch (error) {
+        console.log(error)
+    }
+}
+
 export async function deleteArtist(id: number) {
     try {
         await ArtistService.deleteArtist(id)
