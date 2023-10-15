@@ -4,7 +4,7 @@ import UserService from '../services/UserService';
 
 export async function createUser(body: User) {
     try {
-        await UserService.create(body)
+        return await UserService.create(body)
     }
     catch (error) {
         console.log(error)
@@ -13,7 +13,7 @@ export async function createUser(body: User) {
 
 export async function readUserByID(id: number) {
     try {
-        await UserService.readUserByID(id)
+        return await UserService.readUserByID(id)
     }
     catch (error) {
         console.log(error)
@@ -22,7 +22,7 @@ export async function readUserByID(id: number) {
 
 export async function readUserByEmail(email: string) {
     try {
-        await UserService.readByEmail(email)
+        return await UserService.readByEmail(email)
     } catch (error) {
         console.log(error)
     }
@@ -30,7 +30,7 @@ export async function readUserByEmail(email: string) {
 
 export async function updateUser(body: User) {
     try {
-        await UserService.updateUser(body)
+        return await UserService.updateUser(body)
     }
     catch (error) {
         console.log(error)
@@ -39,7 +39,7 @@ export async function updateUser(body: User) {
 
 export async function deleteUser(id: number) {
     try {
-        await UserService.deleteUser(id)
+        return await UserService.deleteUser(id)
     }
     catch (error) {
         console.log(error)

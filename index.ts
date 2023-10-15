@@ -1,6 +1,8 @@
-import { User } from "@prisma/client";
-import * as UserController from "./src/domains/User/controller/index";
 import Prisma from './client/client';
+import { User } from "@prisma/client";
+
+import * as UserController from "./src/domains/User/controller/index";
+
 
 import { Artist } from "@prisma/client";
 import * as ArtistController from "./src/domains/Artist/controller/index";
@@ -16,11 +18,11 @@ async function main() {
         role: 'ADMIN',
         password: 'oioi',
         photo: null,
-        id: 0,
+        id: 1
     }
 
     // Cria um novo usuário
-    const createdUser = await UserController.createEntities(body);
+    const createdUser = await UserController.createUser
     console.log("Created User:", createdUser);
 
     // Lê o usuário pelo ID (substitua o número do ID apropriado)
