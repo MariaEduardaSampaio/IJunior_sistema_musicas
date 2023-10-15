@@ -15,9 +15,9 @@ class ArtistService {
 
 	}
 
-	async readArtistByID(body: Artist) {
+	async readArtistByID(id: number) {
 		const artistID = await prisma.artist.findUnique({
-			where: { id: body.id }
+			where: { id }
 		});
 		return artistID;
 	}
