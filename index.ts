@@ -1,5 +1,5 @@
 import { User } from "@prisma/client";
-import { CriarEntidades } from "./controller/UserController";
+import { createEntities } from "./controller/UserController";
 
 import Prisma from './client/client'
 
@@ -15,7 +15,7 @@ async function main() {
         id: 0,
     }
 
-    const user = await CriarEntidades(body);
+    const user = await createEntities(body);
     console.log(user);
     
     // const user = await UserService.create(body);

@@ -10,18 +10,18 @@ export async function createArtist(body: Artist) {
     }
 }
 
-export async function readArtistByID(body: Artist) {
+export async function readArtistByID(id: number) {
     try {
-        await ArtistService.readArtistByID(body.id)
+        await ArtistService.readArtistByID(id)
     }
     catch (error) {
         console.log(error)
     }
 }
 
-export async function readArtistByName(body: Artist) {
+export async function readArtistByName(name: string) {
     try {
-        await ArtistService.readArtistByName(body.name)
+        await ArtistService.readArtistByName(name)
     }
     catch (error) {
         console.log(error)
