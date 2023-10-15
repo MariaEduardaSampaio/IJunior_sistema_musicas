@@ -2,7 +2,7 @@ import { User } from '@prisma/client';
 import UserService from '../services/UserService';
 
 
-export async function createEntities(body: User) {
+export async function createUser(body: User) {
     try {
         await UserService.create(body)
     }

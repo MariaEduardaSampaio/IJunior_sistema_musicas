@@ -28,7 +28,6 @@ export async function readArtistByName(name: string) {
     }
 }
 
-
 export async function updateArtist(body: Artist) {
     try {
         await ArtistService.updateArtist(body)
