@@ -3,7 +3,7 @@ import ArtistService from '../service/ArtistService';
 
 export async function createArtist(body: Artist) {
 	try {
-		await ArtistService.createArtist(body);
+		return await ArtistService.createArtist(body);
 	}
 	catch (error) {
 		console.log(error);
@@ -12,7 +12,7 @@ export async function createArtist(body: Artist) {
 
 export async function readArtistByID(id: number) {
 	try {
-		await ArtistService.readArtistByID(id);
+		return await ArtistService.readArtistByID(id);
 	}
 	catch (error) {
 		console.log(error);
@@ -21,16 +21,24 @@ export async function readArtistByID(id: number) {
 
 export async function readArtistByName(name: string) {
 	try {
-		await ArtistService.readArtistByName(name);
+		return await ArtistService.readArtistByName(name);
 	}
 	catch (error) {
 		console.log(error);
 	}
 }
 
+export async function updateArtist(body: Artist) {
+	try {
+		return await ArtistService.updateArtist(body);
+	}
+	catch (error) {
+		console.log(error);
+	}
+}
 export async function deleteArtist(id: number) {
 	try {
-		await ArtistService.deleteArtist(id);
+		return await ArtistService.deleteArtist(id);
 	}
 	catch (error) {
 		console.log(error);

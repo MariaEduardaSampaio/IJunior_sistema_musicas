@@ -20,7 +20,7 @@ async function main() {
 	};
 
 	// Cria um novo usuário
-	const createdUser = await UserController.createEntities(body);
+	const createdUser = await UserController.createUser(body);
 	console.log('Created User:', createdUser);
 
 	// Lê o usuário pelo ID (substitua o número do ID apropriado)
