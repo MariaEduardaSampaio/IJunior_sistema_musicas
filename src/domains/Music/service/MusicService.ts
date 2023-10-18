@@ -1,5 +1,5 @@
-import prisma from '../../../../client/client'
-import { Music } from '@prisma/client'
+import prisma from '../../../../config/client';
+import { Music } from '@prisma/client';
 
 
 class MusicService {
@@ -43,7 +43,7 @@ class MusicService {
 				album: body.album,
 			},
 			where: { id: body.id }
-		})
+		});
 		return user;
 	}
 

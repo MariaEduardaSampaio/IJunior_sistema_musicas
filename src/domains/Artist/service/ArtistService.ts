@@ -1,5 +1,5 @@
-import prisma from '../../../../client/client'
-import { Artist } from '@prisma/client'
+import prisma from '../../../../config/client';
+import { Artist } from '@prisma/client';
 
 
 class ArtistService {
@@ -46,7 +46,7 @@ class ArtistService {
 				streams: body.streams,
 			},
 			where: { id: body.id }
-		})
+		});
 		return artist;
 	}
 

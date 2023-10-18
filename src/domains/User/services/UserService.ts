@@ -1,5 +1,5 @@
-import prisma from '../../../../client/client'
-import { User } from '@prisma/client'
+import prisma from '../../../../config/client';
+import { User } from '@prisma/client';
 
 
 class UserService {
@@ -54,7 +54,7 @@ class UserService {
 				role: body.role,
 			},
 			where: { id: body.id }
-		})
+		});
 		return user;
 	}
 
