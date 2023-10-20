@@ -1,6 +1,10 @@
 import { Artist } from '@prisma/client';
 import ArtistService from '../service/ArtistService';
 
+import { Router, Request, Response, NextFunction } from 'express';
+
+const router = Router();
+
 export async function createArtist(body: Artist) {
 	try {
 		return await ArtistService.createArtist(body);
@@ -28,14 +32,18 @@ export async function readArtistByName(name: string) {
 	}
 }
 
-export async function updateArtist(body: Artist) {
+router.put('/', async (req: Request, res: Response, next: NextFunction) => {
 	try {
-		return await ArtistService.updateArtist(body);
+		const {streams, id, ...rest} = req.body;
+
+		const artist = await ArtistService.updateArtist({id: parseInt(id), streams: parseInt(streams), ...rest});
+		res.sendStatus(204).json(artist);
 	}
 	catch (error) {
-		console.log(error);
+		next(error);
 	}
-}
+});
+
 export async function deleteArtist(id: number) {
 	try {
 		return await ArtistService.deleteArtist(id);
@@ -44,3 +52,5 @@ export async function deleteArtist(id: number) {
 		console.log(error);
 	}
 }
+
+export default router;
