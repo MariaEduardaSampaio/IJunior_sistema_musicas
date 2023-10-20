@@ -36,8 +36,8 @@ router.put('/', async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const {streams, id, ...rest} = req.body;
 
-		const artist = await ArtistService.updateArtist({id: parseInt(id), streams: parseInt(streams), ...rest});
-		res.sendStatus(204).json(artist);
+		await ArtistService.updateArtist({id: parseInt(id), streams: parseInt(streams), ...rest});
+		res.sendStatus(204).end();
 	}
 	catch (error) {
 		next(error);
