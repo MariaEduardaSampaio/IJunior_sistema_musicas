@@ -25,7 +25,7 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
 	}
 });
 
-router.get('/:name', async (req: Request, res: Response, next: NextFunction) => {
+router.get('/name/:name', async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const musics = await MusicService.readByName(req.params.name);
 		res.status(200).json(musics);
@@ -36,6 +36,7 @@ router.get('/:name', async (req: Request, res: Response, next: NextFunction) => 
 });
 
 router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
+
 	try {
 		const musics = await MusicService.readById(parseInt(req.params.id));
 		res.status(200).json(musics);
