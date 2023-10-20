@@ -18,14 +18,14 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
 	}
 });
 
-export async function createUser(body: User) {
+router.post('/create', async (req: Request, res: Response, next: NextFunction) => {
 	try {
-		return await UserService.create(body);
+		const user = await UserService.create(req.body);
+		res.status(200).json(user);
+	} catch (error) {
+		next(error);
 	}
-	catch (error) {
-		console.log(error);
-	}
-}
+});
 
 export async function readUserByID(id: number) {
 	try {
