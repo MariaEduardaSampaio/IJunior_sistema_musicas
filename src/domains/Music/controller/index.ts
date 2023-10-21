@@ -1,19 +1,19 @@
-import { Music } from '@prisma/client';
-import MusicService from '../service/MusicService';
+import MusicService from '../services/MusicService';
 // import { Artist } from '@prisma/client';
 
 import { Router, Request, Response, NextFunction } from 'express';
 
 const router = Router();
 
-export async function createMusic(body: Music, id: number) {
+router.put('/', async (req: Request, res: Response, next: NextFunction) => {
 	try {
-		return await MusicService.createMusic(body, id);
+		const { id, artistId, ...rest } = req.body;
+		await MusicService.updateMusic({ id: parseInt(id), artistId: parseInt(artistId), ...rest });
+		res.status(200).end();
+	} catch (error) {
+		next(error);
 	}
-	catch (error) {
-		console.log(error);
-	}
-}
+});
 
 router.get('/', async (req: Request, res: Response, next: NextFunction) => {
 	try {
@@ -46,23 +46,5 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
 	}
 });
 
-export async function updateMusic(body: Music) {
-	try {
-		return await MusicService.updateMusic(body);
-	}
-	catch (error) {
-		console.log(error);
-	}
-}
-
-export async function deleteMusic(id: number) {
-	try {
-		return await MusicService.deleteMusic(id);
-	}
-	catch (error) {
-		console.log(error);
-	}
-
-}
 
 export default router;
