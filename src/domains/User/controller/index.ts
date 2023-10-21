@@ -1,4 +1,3 @@
-
 import UserService from '../services/UserService';
 
 import { Router, Request, Response, NextFunction } from 'express';
