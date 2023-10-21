@@ -2,6 +2,7 @@ import { User } from '@prisma/client';
 import UserService from '../services/UserService';
 
 import { Router, Request, Response, NextFunction } from 'express';
+import { parse } from 'path';
 
 const router = Router();
 
@@ -38,15 +39,15 @@ router.post('/create', async (req: Request, res: Response, next: NextFunction) =
 	}
 });
 
-router.put ('/:id', async (req: Request, res: Response, next: NextFunction) => {
+router.put ('/', async (req: Request, res: Response, next: NextFunction) => {
 	try {
-		const id = Number(req.params.id);
-		const user = UserService.readUserByID(id);
+		const {id, name, email, photo, password, role }= req.body
+		const user = UserService.readUserByID(parseInt(id));
 		if (!user) {
 			res.status(404).json("Usuário não encontrado");
 		}
-		await UserService.updateUser(req.body);
-		res.status(200).json(req.body);
+		await UserService.updateUser({id: parseInt(id), name, email, photo, password, role});
+		res.status(200).json({id: parseInt(id), name, email, photo, password, role});
 	} catch (error){ 
 	  next(error);
 	}
