@@ -46,6 +46,7 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
 	}
 });
 
+
 export async function updateMusic(body: Music) {
 	try {
 		return await MusicService.updateMusic(body);

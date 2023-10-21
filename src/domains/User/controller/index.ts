@@ -7,8 +7,10 @@ const router = Router();
 
 router.get('/', async (req: Request, res: Response, next: NextFunction) => {
 	try {
-
-		res.send('Running');
+		const id = req.query.id;
+		// res.send('Running')
+		const users = await UserService.readUserByID(Number(id));
+		res.status(200).json(users);
 		// const users = await UserService.readByEmail('test@test.com');
 		// res.status(200).json(users);
 	} catch (error) {
@@ -36,14 +38,20 @@ router.post('/create', async (req: Request, res: Response, next: NextFunction) =
 	}
 });
 
-router.get('/update', async (req: Request, res: Response, next: NextFunction) => {
+router.put ('/:id', async (req: Request, res: Response, next: NextFunction) => {
 	try {
+		const id = Number(req.params.id);
+		const user = UserService.readUserByID(id);
+		if (!user) {
+			res.status(404).json("Usuário não encontrado");
+		}
 		await UserService.updateUser(req.body);
-		res.json("Usuário atualizado com sucesso");
-	} catch (error) {
-		next(error);
+		res.status(200).json(req.body);
+	} catch (error){ 
+	  next(error);
 	}
-});
+  });
+  
 
 export async function createUser(body: User) {
 	try {
