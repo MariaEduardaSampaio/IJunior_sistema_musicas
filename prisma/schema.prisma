@@ -27,7 +27,7 @@ model Artist {
   name    String
   photo   String?
   streams Int
-  musics  Music[] @relation("ArtistMusic")
+  musics  Music[]
 
   @@map("artists")
 }
@@ -37,7 +37,7 @@ model Music {
   name     String
   genre    String
   album    String
-  artist   Artist @relation("ArtistMusic", fields: [artistId], references: [id])
+  artist   Artist @relation(fields: [artistId], references: [id])
   artistId Int
   users    User[]
 
