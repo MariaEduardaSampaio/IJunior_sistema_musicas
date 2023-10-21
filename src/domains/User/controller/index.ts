@@ -8,11 +8,39 @@ const router = Router();
 router.get('/', async (req: Request, res: Response, next: NextFunction) => {
 	try {
 
-		res.send('Running');
-
-
+		const users = await UserService.findUsers();
+		res.json(users)
 		// const users = await UserService.readByEmail('test@test.com');
 		// res.status(200).json(users);
+	} catch (error) {
+		next(error);
+	}
+});
+
+
+router.get('/:email', async(req: Request, res: Response, next: NextFunction) => {
+	try {
+		const user = await UserService.readByEmail(req.params.email);
+		res.status(200).json(user);
+	} catch (error) {
+		next(error);
+	}
+});
+
+router.post('/create', async (req: Request, res: Response, next: NextFunction) => {
+	try {
+		await UserService.create(req.body);
+		res.json("Usuário criado com sucesso");
+
+	} catch (error){
+		next(error);
+	}
+});
+
+router.get('/update', async (req: Request, res: Response, next: NextFunction) => {
+	try {
+		await UserService.updateUser(req.body);
+		res.json("Usuário atualizado com sucesso");
 	} catch (error) {
 		next(error);
 	}
