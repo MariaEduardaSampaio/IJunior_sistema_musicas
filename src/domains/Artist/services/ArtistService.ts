@@ -8,7 +8,7 @@ class ArtistService {
 			data: {
 				name: body.name,
 				photo: body.photo,
-				streams: body.streams,
+				streams: Number(body.streams),
 			}
 		});
 		return createArtist;
@@ -43,7 +43,7 @@ class ArtistService {
 			data: {
 				name: body.name,
 				photo: body.photo,
-				streams: body.streams,
+				streams: Number(body.streams),
 			},
 			where: { id: body.id }
 		});
