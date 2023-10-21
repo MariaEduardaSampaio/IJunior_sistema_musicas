@@ -18,7 +18,11 @@ class MusicService {
 			}
 		});
 		return createMusic;
+	}
 
+	async readAll(){
+		const musics = await prisma.music.findMany();
+		return musics;
 	}
 
 	async readByName(name : string){

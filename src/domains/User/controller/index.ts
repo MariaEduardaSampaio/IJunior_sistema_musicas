@@ -8,8 +8,7 @@ const router = Router();
 router.get('/', async (req: Request, res: Response, next: NextFunction) => {
 	try {
 
-		const users = await UserService.findUsers();
-		res.json(users)
+		res.send('Running');
 		// const users = await UserService.readByEmail('test@test.com');
 		// res.status(200).json(users);
 	} catch (error) {
@@ -48,12 +47,11 @@ router.get('/update', async (req: Request, res: Response, next: NextFunction) =>
 
 export async function createUser(body: User) {
 	try {
-		return await UserService.create(body);
-	}
-	catch (error) {
+		const user = await UserService.create(body);
+	} catch (error) {
 		console.log(error);
 	}
-}
+};
 
 export async function readUserByID(id: number) {
 	try {

@@ -2,6 +2,8 @@ import dotenv from 'dotenv';
 import express , { Express } from 'express';
 import cors, {CorsOptions} from 'cors';
 import UserRouter from '../src/domains/User/controller/index';
+import MusicRouter from '../src/domains/Music/controller/index';
+import ArtistRouter from '../src/domains/Artist/controller/index';
 
 dotenv.config();
 
@@ -15,6 +17,9 @@ const options : CorsOptions = {
 app.use(cors(options));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
 app.use('/api/users', UserRouter);
+app.use('/api/musics', MusicRouter);
+app.use('/api/artists', ArtistRouter);
 
 export default app;
