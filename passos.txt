@@ -9,6 +9,18 @@
     npm install --save @types/eslint
     npm init @eslint/configb 
 
+-> instalações da 3a semana:
+    npm install express
+    npm install --save-dev @types/express
+    npm install cors
+    npm install --save-dev @types/cors
+    npm install dotenv
+    npm install --save-dev @types/dotenv
+    npm i ts-node-dev
+
+adicionar no script start do package-json:
+"tsnd --rs --respawn --transpile-only --exit-child index.ts"
+
 1. fazer as alterações no arquivo schema.prisma
 
 2. executar npx prisma generate: regenerará os arq ts que 
