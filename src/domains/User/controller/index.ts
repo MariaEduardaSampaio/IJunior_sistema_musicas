@@ -1,8 +1,8 @@
 import UserService from '../services/UserService';
 
 import { Router, Request, Response, NextFunction } from 'express';
-import { userInfo } from 'os';
-import { parse } from 'path';
+// import { userInfo } from 'os';
+// import { parse } from 'path';
 
 const router = Router();
 
@@ -40,7 +40,7 @@ router.delete('/delete/:id', async (req: Request, res: Response, next: NextFunct
 		res.status(200).json(user);
 	}
 	catch(error){
-		next(error)
+		next(error);
 	}
 });
 

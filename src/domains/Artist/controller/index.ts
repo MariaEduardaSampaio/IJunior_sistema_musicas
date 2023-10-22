@@ -19,7 +19,7 @@ router.put('/', async (req: Request, res: Response, next: NextFunction) => {
 router.post('/create', async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		await ArtistService.createArtist(req.body);
-		res.json("Artista criado com sucesso");
+		res.json('Artista criado com sucesso');
 
 	} catch (error){
 		next(error);
