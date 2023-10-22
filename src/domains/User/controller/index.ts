@@ -8,7 +8,7 @@ const router = Router();
 
 router.get('/', async (req: Request, res: Response, next: NextFunction) => {
 	try {
-		const id = req.query.id;
+		const id = req.params.id;
 		// res.send('Running')
 		const users = await UserService.readUserByID(Number(id));
 		res.status(200).json(users);
@@ -42,8 +42,7 @@ router.post('/create', async (req: Request, res: Response, next: NextFunction) =
 router.put ('/', async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const {id, name, email, photo, password, role }= req.body
-		const user = UserService.readUserByID(parseInt(id));
-		if (!user) {
+		if (req.body.id === undefined) {
 			res.status(404).json("Usuário não encontrado");
 		}
 		await UserService.updateUser({id: parseInt(id), name, email, photo, password, role});
