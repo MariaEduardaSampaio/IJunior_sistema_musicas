@@ -11,45 +11,35 @@ datasource db {
 }
 
 model User {
-  id       Int              @id @default(autoincrement())
+  id       Int     @id @default(autoincrement())
   name     String
-  email    String           @unique
+  email    String  @unique
   photo    String?
   password String
   role     String
-  musics   MusicsFromUser[]
+  musics   Music[]
 
   @@map("users")
 }
 
 model Artist {
   id      Int     @id @default(autoincrement())
-  name    String  
+  name    String
   photo   String?
   streams Int
-  musics  Music[] @relation("ArtistMusic")
+  musics  Music[]
 
   @@map("artists")
 }
 
 model Music {
-  id       Int              @id @default(autoincrement())
+  id       Int    @id @default(autoincrement())
   name     String
   genre    String
   album    String
-  artist   Artist           @relation("ArtistMusic", fields: [artistId], references: [id])
+  artist   Artist @relation(fields: [artistId], references: [id])
   artistId Int
-  users    MusicsFromUser[]
+  users    User[]
 
   @@map("musics")
-}
-
-model MusicsFromUser {
-  user    User  @relation(fields: [userId], references: [id])
-  userId  Int
-  music   Music @relation(fields: [musicId], references: [id])
-  musicId Int
-
-  @@id([userId, musicId])
-  @@map("musics_from_user")
 }
