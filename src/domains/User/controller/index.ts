@@ -43,7 +43,7 @@ router.get('/email/:email', async (req: Request, res: Response, next: NextFuncti
 	}
 });
 
-router.delete('/:id', async (req: Request, res: Response, next: NextFunction) => {
+router.delete('/delete/:id', async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const user = await UserService.deleteUser(parseInt(req.params.id));
 		res.status(200).json(user);

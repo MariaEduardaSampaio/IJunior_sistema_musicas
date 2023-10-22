@@ -49,7 +49,7 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
 router.post('/create', async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		await MusicService.createMusic(req.body, parseInt(req.params.id));
-		res.json("Artista criado com sucesso");
+		res.json("Musica criada com sucesso");
 
 	} catch (error){
 		next(error);
