@@ -1,6 +1,7 @@
 import UserService from '../services/UserService';
 
 import { Router, Request, Response, NextFunction } from 'express';
+import { userInfo } from 'os';
 import { parse } from 'path';
 
 const router = Router();
@@ -36,6 +37,15 @@ router.post('/create', async (req: Request, res: Response, next: NextFunction) =
 router.get('/email/:email', async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const user = await UserService.readByEmail(req.params.email);
+		res.status(200).json(user);
+	} catch (error) {
+		next(error);
+	}
+});
+
+router.delete('/:id', async (req: Request, res: Response, next: NextFunction) => {
+	try {
+		const user = await UserService.deleteUser(parseInt(req.params.id));
 		res.status(200).json(user);
 	} catch (error) {
 		next(error);
