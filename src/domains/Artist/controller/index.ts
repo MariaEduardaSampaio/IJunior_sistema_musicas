@@ -48,7 +48,6 @@ router.get('/name/:name', async (req: Request, res: Response, next: NextFunction
 	}
 });
 
-
 router.delete('/:id', async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const artist = await ArtistService.deleteArtist(parseInt(req.params.id));
