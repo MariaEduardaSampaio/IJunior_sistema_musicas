@@ -1,0 +1,3 @@
+[ ] Gerar Exceções Personalizadas
+[ ] Importar códigos de status
+[ ] Verificar as permissões do usuário - CHECK ROLES

@@ -52,9 +52,9 @@ router.put ('/', async (req: Request, res: Response, next: NextFunction) => {
 		await UserService.updateUser({id: parseInt(id), name, email, photo, password, role});
 		res.status(200).json({id: parseInt(id), name, email, photo, password, role});
 	} catch (error){ 
-	  next(error);
+		next(error);
 	}
-  });
+});
   
 
 router.get('/email/:email', async (req: Request, res: Response, next: NextFunction) => {
