@@ -56,4 +56,16 @@ router.post('/create', async (req: Request, res: Response, next: NextFunction) =
 	}
 });
 
+router.delete('/:id', async (req: Request, res: Response, next: NextFunction) => {
+
+	try {
+		const musics = await MusicService.deleteMusic(parseInt(req.params.id));
+		res.status(200).json(musics);
+	}
+	catch (error) {
+		next(error);
+	}
+});
+
+
 export default router;
