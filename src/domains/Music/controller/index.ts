@@ -9,7 +9,7 @@ router.put('/', async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const { id, artistId, ...rest } = req.body;
 		await MusicService.updateMusic({ id: parseInt(id), artistId: parseInt(artistId), ...rest });
-		res.status(200).end();
+		res.status(200).json('Música atualizada com sucesso.');
 	} catch (error) {
 		next(error);
 	}
@@ -48,10 +48,10 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
 
 router.post('/create', async (req: Request, res: Response, next: NextFunction) => {
 	try {
-		await MusicService.createMusic(req.body, parseInt(req.params.id));
-		res.json('Musica criada com sucesso');
+		await MusicService.createMusic(req.body, parseInt(req.body.artistId));
+		res.status(200).json('Musica criada com sucesso');
 
-	} catch (error){
+	} catch (error) {
 		next(error);
 	}
 });
