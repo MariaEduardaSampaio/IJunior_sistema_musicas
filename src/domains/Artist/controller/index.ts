@@ -21,7 +21,7 @@ router.put('/', async (req: Request, res: Response, next: NextFunction) => {
 		const { streams, id, ...rest } = req.body;
 
 		await ArtistService.updateArtist({ id: parseInt(id), streams: parseInt(streams), ...rest });
-		res.sendStatus(201).end();
+		res.sendStatus(202).end();
 	}
 	catch (error) {
 		next(error);
@@ -44,6 +44,15 @@ router.get('/name/:name', async (req: Request, res: Response, next: NextFunction
 		res.status(200).json(artists);
 	}
 	catch (error) {
+		next(error);
+	}
+});
+
+router.get('/allArtists', async (req: Request, res: Response, next: NextFunction) => {
+	try {
+		const artists = await ArtistService.readAllArtists();
+		res.status(200).json(artists);
+	} catch (error) {
 		next(error);
 	}
 });

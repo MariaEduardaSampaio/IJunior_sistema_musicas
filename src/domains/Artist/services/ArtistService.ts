@@ -30,6 +30,10 @@ class ArtistService {
 		return artist;
 	}
 
+	async readAllArtists() {
+		const artists = await prisma.artist.findMany();
+		return artists;
+	}
 
 	async deleteArtist(id: number) {
 		const deletedArtist = await prisma.artist.delete({
