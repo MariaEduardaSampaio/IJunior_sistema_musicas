@@ -52,7 +52,7 @@ router.delete('/delete/:id', async (req: Request, res: Response, next: NextFunct
 	}
 });
 
-router.put('/', async (req: Request, res: Response, next: NextFunction) => {
+router.put('/update', async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const { id, name, email, photo, password, role } = req.body;
 		if (req.body.id === undefined) {

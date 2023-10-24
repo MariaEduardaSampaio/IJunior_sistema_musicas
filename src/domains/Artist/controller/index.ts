@@ -5,7 +5,7 @@ import { Router, Request, Response, NextFunction } from 'express';
 const router = Router();
 
 
-router.post('/', async (req: Request, res: Response, next: NextFunction) => {
+router.post('/create', async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const artist = await ArtistService.createArtist(req.body);
 		res.status(201).json(artist);
@@ -16,7 +16,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
 });
 
 
-router.put('/', async (req: Request, res: Response, next: NextFunction) => {
+router.put('/update', async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const { streams, id, ...rest } = req.body;
 
@@ -57,7 +57,7 @@ router.get('/allArtists', async (req: Request, res: Response, next: NextFunction
 	}
 });
 
-router.delete('/:id', async (req: Request, res: Response, next: NextFunction) => {
+router.delete('/delete/:id', async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const artist = await ArtistService.deleteArtist(parseInt(req.params.id));
 		res.status(200).json(artist);

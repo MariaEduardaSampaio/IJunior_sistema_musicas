@@ -5,7 +5,7 @@ import { Router, Request, Response, NextFunction } from 'express';
 
 const router = Router();
 
-router.put('/', async (req: Request, res: Response, next: NextFunction) => {
+router.put('/update', async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const { id, artistId, ...rest } = req.body;
 		await MusicService.updateMusic({ id: parseInt(id), artistId: parseInt(artistId), ...rest });
@@ -15,7 +15,7 @@ router.put('/', async (req: Request, res: Response, next: NextFunction) => {
 	}
 });
 
-router.get('/', async (req: Request, res: Response, next: NextFunction) => {
+router.get('/allMusics', async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const musics = await MusicService.readAll();
 		res.status(200).json(musics);
@@ -35,7 +35,7 @@ router.get('/name/:name', async (req: Request, res: Response, next: NextFunction
 	}
 });
 
-router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
+router.get('/id/:id', async (req: Request, res: Response, next: NextFunction) => {
 
 	try {
 		const musics = await MusicService.readById(parseInt(req.params.id));
@@ -56,7 +56,7 @@ router.post('/create', async (req: Request, res: Response, next: NextFunction) =
 	}
 });
 
-router.delete('/:id', async (req: Request, res: Response, next: NextFunction) => {
+router.delete('/delete/:id', async (req: Request, res: Response, next: NextFunction) => {
 
 	try {
 		const musics = await MusicService.deleteMusic(parseInt(req.params.id));
