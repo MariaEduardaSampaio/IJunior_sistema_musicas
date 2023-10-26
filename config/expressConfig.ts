@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
-import express , { Express } from 'express';
-import cors, {CorsOptions} from 'cors';
+import express, { Express } from 'express';
+import cors, { CorsOptions } from 'cors';
+import cookieParser from 'cookie-parser';
 import UserRouter from '../src/domains/User/controller/index';
 import MusicRouter from '../src/domains/Music/controller/index';
 import ArtistRouter from '../src/domains/Artist/controller/index';
@@ -9,7 +10,7 @@ dotenv.config();
 
 export const app: Express = express();
 
-const options : CorsOptions = {
+const options: CorsOptions = {
 	credentials: true,
 	origin: process.env.APP_URL
 };
@@ -21,5 +22,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/users', UserRouter);
 app.use('/api/musics', MusicRouter);
 app.use('/api/artists', ArtistRouter);
+
+app.use(cookieParser());
 
 export default app;

@@ -18,6 +18,16 @@
     npm install --save-dev @types/dotenv
     npm i ts-node-dev
 
+-> instalações da 5a semana:
+    npm install jsonwebtoken
+    npm install --save @types/jsonwebtoken
+    npm install cors
+    npm install --save @types/cors
+    npm install cookie-parser
+    npm install --save @types/cookie-parser
+    npm install bcrypt
+    npm install --save @types/bcrypt
+
 adicionar no script start do package-json:
 "tsnd --rs --respawn --transpile-only --exit-child index.ts"
 
