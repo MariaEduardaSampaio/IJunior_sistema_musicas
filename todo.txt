@@ -1,3 +1,4 @@
 [ ] Gerar Exceções Personalizadas
-[ ] Importar códigos de status
+[X] Importar códigos de status
 [ ] Verificar as permissões do usuário - CHECK ROLES
+[ ] Função de checagem se o usuario ja esta logado, para não gerar outro cookie

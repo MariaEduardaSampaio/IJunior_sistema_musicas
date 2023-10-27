@@ -19,10 +19,10 @@ app.use(cors(options));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+app.use(cookieParser());
+
 app.use('/api/users', UserRouter);
 app.use('/api/musics', MusicRouter);
 app.use('/api/artists', ArtistRouter);
-
-app.use(cookieParser());
 
 export default app;
