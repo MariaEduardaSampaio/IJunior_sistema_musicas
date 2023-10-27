@@ -4,7 +4,7 @@ import { PermissionError } from '../../errors/PermissionError';
 import { User } from '@prisma/client';
 import UserService from '../domains/User/services/UserService';
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 
 function generateJWT(user: User, res: Response) {
 	const body = {
@@ -33,11 +33,11 @@ function cookieExtractor(req: Request) {
 
 async function loginMiddleware(req: Request, res: Response, next: NextFunction) {
 	try {
-		const user = await UserService.readByEmail(req.body.email);
+		const user = await UserService.readByEmail(req.user.email);
 		if (!user) {
 			throw new PermissionError('Email e/ou senha incorretos.');
 		} else {
-			const matchingPassword = await bcrypt.compare(req.body.password, user.password);
+			const matchingPassword = await bcrypt.compare(req.user.password, user.password);
 			if (!matchingPassword) {
 				throw new PermissionError('Email e/ou senha incorretos.');
 			}
@@ -57,10 +57,10 @@ function verifyJWT(req: Request, res: Response, next: NextFunction) {
 	try {
 		const token = cookieExtractor(req);
 		if (token) {
-			const decoded = jwt.verify(token, process.env.SECRET_KEY as string);
-			req.body.user = decoded;
+			const decoded = jwt.verify(token, process.env.SECRET_KEY) as JwtPayload;
+			req.user = decoded.user;
 		}
-		if (!req.body.user) {
+		if (!req.user) {
 			throw new PermissionError('Você precisa estar logado para realizar esta ação.');
 		}
 		next();
