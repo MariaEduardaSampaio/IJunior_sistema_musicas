@@ -5,7 +5,6 @@ import statusCodes from '../../../../utils/constants/statusCodes';
 import checkRoles from '../../../middlewares/checkRole';
 import { verifyJWT } from '../../../middlewares/auth-middlewares';
 import { NotAuthorizedError } from '../../../../errors/NotAuthorizedError';
-import app from '../../../../config/expressConfig';
 // import { userInfo } from 'os';
 // import { parse } from 'path';
 
@@ -14,7 +13,6 @@ const router = Router();
 // router.post('/login', async (req: Request, res: Response, next: NextFunction) => {});
 // router.post('/logout', async (req: Request, res: Response, next: NextFunction) => {});
 
-app.use(verifyJWT); // deve ficar abaixo de rota de login
 router.post('/create', checkRoles([UserRoles.ADMIN, UserRoles.USER]), async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		await UserService.create(req.body);
@@ -42,7 +40,7 @@ router.get('/email/:email', async (req: Request, res: Response, next: NextFuncti
 	}
 });
 
-router.get('/allUsers', async (req: Request, res: Response, next: NextFunction) => {
+router.get('/allUsers', verifyJWT, async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		if (req.user.role != UserRoles.ADMIN) {
 			throw new NotAuthorizedError('Você não tem permissão para visualizar todos os usuários.');
@@ -54,7 +52,7 @@ router.get('/allUsers', async (req: Request, res: Response, next: NextFunction) 
 	}
 });
 
-router.delete('/delete/:id', async (req: Request, res: Response, next: NextFunction) => {
+router.delete('/delete/:id', verifyJWT, async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		if (req.user.role == UserRoles.USER && req.user.id != parseInt(req.params.id)) {
 			throw new NotAuthorizedError('Você não tem permissão para deletar outro usuário.');
@@ -68,7 +66,7 @@ router.delete('/delete/:id', async (req: Request, res: Response, next: NextFunct
 	}
 });
 
-router.put('/update', async (req: Request, res: Response, next: NextFunction) => {
+router.put('/update', verifyJWT, async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		if (req.user.id != parseInt(req.body.id)) {
 			throw new NotAuthorizedError('Você não tem permissão para atualizar outro usuário.');
