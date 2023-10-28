@@ -5,7 +5,7 @@ function checkRoles(roles: string[]) {
 	return (req: Request, res: Response, next: NextFunction) => {
 		const role = req.user!.role;
 
-		if (roles.includes(role)){ // O usuario tem algum cargo da lista de cargos permitidos
+		if (roles.includes(role)) { // O usuario tem algum cargo da lista de cargos permitidos
 			next(); // OK - pode continuar
 		} else {
 			res.status(statusCodes.FORBIDDEN).json('Você não tem permissão para acessar essa rota.');
