@@ -33,11 +33,11 @@ function cookieExtractor(req: Request) {
 
 async function loginMiddleware(req: Request, res: Response, next: NextFunction) {
 	try {
-		const user = await UserService.readByEmail(req.user.email);
+		const user = await UserService.readByEmail(req.body.email);
 		if (!user) {
 			throw new PermissionError('Email e/ou senha incorretos.');
 		} else {
-			const matchingPassword = await bcrypt.compare(req.user.password, user.password);
+			const matchingPassword = await bcrypt.compare(req.body.password, user.password);
 			if (!matchingPassword) {
 				throw new PermissionError('Email e/ou senha incorretos.');
 			}
@@ -45,13 +45,28 @@ async function loginMiddleware(req: Request, res: Response, next: NextFunction) 
 
 		generateJWT(user, res);
 
-		res.status(statusCodes.NO_CONTENT).end();
+		// res.status(statusCodes.NO_CONTENT).end();
+		
+		res.status(statusCodes.SUCCESS).json('Usuário logado com sucesso!');
 	} catch (error) {
 		next(error);
 	}
 }
 
-// async function notLoggedIn(req: Request, res: Response, next: NextFunction){}
+async function notLoggedIn(req: Request, res: Response, next: NextFunction) {
+	try {
+		const token = cookieExtractor(req);
+
+		if (token) {
+			throw new PermissionError("Você já está logado.");
+		} else {
+			return
+		}
+	} catch (error) {
+		next(error);
+	}
+}
+
 
 function verifyJWT(req: Request, res: Response, next: NextFunction) {
 	try {
@@ -70,4 +85,5 @@ function verifyJWT(req: Request, res: Response, next: NextFunction) {
 }
 
 
-export default { loginMiddleware, verifyJWT }; // adicionar notLoggedIn
+
+export  { loginMiddleware, verifyJWT, notLoggedIn }; // adicionar notLoggedIn
