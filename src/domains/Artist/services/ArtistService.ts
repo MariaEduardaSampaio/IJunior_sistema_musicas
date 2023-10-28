@@ -8,11 +8,12 @@ class ArtistService {
 		if (body.streams < 0) {
 			throw new InvalidParamError('Streams não pode ser menor que 0');
 		}
+
 		const createArtist = await prisma.artist.create({
 			data: {
-				name: body.name,
+				name: body!.name,
 				photo: body.photo,
-				streams: Number(body.streams),
+				streams: Number(body!.streams),
 			}
 		});
 		return createArtist;
@@ -20,6 +21,10 @@ class ArtistService {
 	}
 
 	async readArtistByID(id: number) {
+		if (id === undefined) {
+			throw new InvalidParamError('ID não pode ser vazio');
+		}
+
 		const artistID = await prisma.artist.findUnique({
 			where: { id }
 		});
@@ -33,6 +38,10 @@ class ArtistService {
 
 
 	async readArtistByName(name: string) {
+		if (name === undefined) {
+			throw new InvalidParamError('Nome não pode ser vazio');
+		}
+
 		const artist = await prisma.artist.findMany({
 			where: { name }
 		});
@@ -55,6 +64,10 @@ class ArtistService {
 	}
 
 	async deleteArtist(id: number) {
+		if (id === undefined) {
+			throw new InvalidParamError('ID não pode ser vazio');
+		}
+
 		const artist = await prisma.artist.delete({
 			where: { id }
 		});
@@ -67,14 +80,19 @@ class ArtistService {
 	}
 
 	async updateArtist(body: Artist) {
+		if (body.streams < 0) {
+			throw new InvalidParamError('Streams não pode ser menor que 0');
+		}
+
 		const artist = await prisma.artist.update({
 			data: {
-				name: body.name,
+				name: body!.name,
 				photo: body.photo,
-				streams: Number(body.streams),
+				streams: Number(body!.streams),
 			},
-			where: { id: body.id }
+			where: { id: body!.id }
 		});
+
 		if (artist === null) {
 			throw new InvalidParamError('Artista não encontrado');
 		}

@@ -1,18 +1,22 @@
 import ArtistService from '../services/ArtistService';
 import { Router, Request, Response, NextFunction } from 'express';
 import statusCodes from '../../../../utils/constants/statusCodes';
-import { InvalidParamError } from '../../../../errors/InvalidParamError';
-import checkRoles from '../../../middlewares/checkRole';
 import UserRoles from '../../../../utils/constants/userRoles';
+import { verifyJWT } from '../../../middlewares/auth-middlewares';
+import { NotAuthorizedError } from '../../../../errors/NotAuthorizedError';
 const router = Router();
 
+function verifyAdmin(req: Request, res: Response, next: NextFunction, messageError: string) {
+	if (req.user.role !== UserRoles.ADMIN) {
+		throw new NotAuthorizedError(messageError);
+	}
+	next();
+}
 
-router.post('/create', checkRoles([UserRoles.ADMIN]), async (req: Request, res: Response, next: NextFunction) => {
+router.post('/create', verifyJWT, async (req: Request, res: Response, next: NextFunction) => {
 	try {
-		if (req.body.name === undefined) {
-			throw new InvalidParamError('Nome não pode ser vazio');
-		}
-
+		const messageError = 'Você não tem permissão para criar um artista';
+		verifyAdmin(req, res, next, messageError);
 		await ArtistService.createArtist(req.body);
 		res.status(statusCodes.CREATED).json('Artista criado com sucesso!');
 	}
@@ -22,13 +26,12 @@ router.post('/create', checkRoles([UserRoles.ADMIN]), async (req: Request, res: 
 });
 
 
-router.put('/update', checkRoles([UserRoles.ADMIN]), async (req: Request, res: Response, next: NextFunction) => {
+router.put('/update', async (req: Request, res: Response, next: NextFunction) => {
 	try {
-		const { streams, id, ...rest } = req.body;
-		if (req.body.id === undefined) {
-			throw new InvalidParamError('ID não pode ser vazio');
-		}
+		const messageError = 'Você não tem permissão para atualizar um artista';
+		verifyAdmin(req, res, next, messageError);
 
+		const { streams, id, ...rest } = req.body;
 		await ArtistService.updateArtist({ id: parseInt(id), streams: parseInt(streams), ...rest });
 		res.sendStatus(statusCodes.NO_CONTENT).json('Artista atualizado com sucesso!');
 	}
@@ -37,11 +40,10 @@ router.put('/update', checkRoles([UserRoles.ADMIN]), async (req: Request, res: R
 	}
 });
 
-router.get('/id/:id', checkRoles([UserRoles.ADMIN]), async (req: Request, res: Response, next: NextFunction) => {
+router.get('/id/:id', async (req: Request, res: Response, next: NextFunction) => {
 	try {
-		if (req.params.id === undefined) {
-			throw new InvalidParamError('ID não pode ser vazio');
-		}
+		const messageError = 'Você não tem permissão para buscar um artista por id';
+		verifyAdmin(req, res, next, messageError);
 
 		const artists = await ArtistService.readArtistByID(Number(req.params.id));
 		res.status(statusCodes.SUCCESS).json(artists);
@@ -51,12 +53,8 @@ router.get('/id/:id', checkRoles([UserRoles.ADMIN]), async (req: Request, res: R
 	}
 });
 
-router.get('/name/:name', checkRoles([UserRoles.ADMIN, UserRoles.USER]), async (req: Request, res: Response, next: NextFunction) => {
+router.get('/name/:name', async (req: Request, res: Response, next: NextFunction) => {
 	try {
-		if (req.params.name === undefined) {
-			throw new InvalidParamError('Nome não pode ser vazio');
-		}
-
 		const artists = await ArtistService.readArtistByName(String(req.params.name));
 		res.status(statusCodes.SUCCESS).json(artists);
 	}
@@ -65,7 +63,7 @@ router.get('/name/:name', checkRoles([UserRoles.ADMIN, UserRoles.USER]), async (
 	}
 });
 
-router.get('/allArtists', checkRoles([UserRoles.ADMIN]), async (req: Request, res: Response, next: NextFunction) => {
+router.get('/allArtists', async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const artists = await ArtistService.readAllArtists();
 		res.status(statusCodes.SUCCESS).json(artists);
@@ -74,11 +72,10 @@ router.get('/allArtists', checkRoles([UserRoles.ADMIN]), async (req: Request, re
 	}
 });
 
-router.delete('/delete/:id', checkRoles([UserRoles.ADMIN]), async (req: Request, res: Response, next: NextFunction) => {
+router.delete('/delete/:id', async (req: Request, res: Response, next: NextFunction) => {
 	try {
-		if (req.params.id === undefined) {
-			throw new InvalidParamError('ID não pode ser vazio');
-		}
+		const messageError = 'Você não tem permissão para deletar um artista';
+		verifyAdmin(req, res, next, messageError);
 
 		await ArtistService.deleteArtist(parseInt(req.params.id));
 		res.status(statusCodes.NO_CONTENT).json('Artista deletado com sucesso!');
@@ -86,7 +83,5 @@ router.delete('/delete/:id', checkRoles([UserRoles.ADMIN]), async (req: Request,
 		next(error);
 	}
 });
-
-
 
 export default router;
