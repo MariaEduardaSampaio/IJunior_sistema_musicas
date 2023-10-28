@@ -53,7 +53,7 @@ async function loginMiddleware(req: Request, res: Response, next: NextFunction) 
 
 // async function notLoggedIn(req: Request, res: Response, next: NextFunction){}
 
-function verifyJWT(req: Request, res: Response, next: NextFunction) {
+export function verifyJWT(req: Request, res: Response, next: NextFunction) {
 	try {
 		const token = cookieExtractor(req);
 		if (token) {
@@ -70,4 +70,4 @@ function verifyJWT(req: Request, res: Response, next: NextFunction) {
 }
 
 
-export default { loginMiddleware, verifyJWT }; // adicionar notLoggedIn
+export default { loginMiddleware }; // adicionar notLoggedIn
