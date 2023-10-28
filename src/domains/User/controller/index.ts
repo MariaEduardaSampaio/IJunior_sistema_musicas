@@ -1,6 +1,6 @@
 import UserService from '../services/UserService';
 import { Router, Request, Response, NextFunction } from 'express';
-// import { loginMiddleware, verifyJWT } from '../../../middlewares/auth-middlewares';
+import { loginMiddleware, logoutMiddleware/*, notLoggedIn*/ } from '../../../middlewares/auth-middlewares';
 // import UserRoles from '../../../../utils/constants/userRoles';
 // import statusCodes from '../../../../utils/constants/statusCodes';
 
@@ -11,8 +11,9 @@ import statusCodes from '../../../../utils/constants/statusCodes';
 
 const router = Router();
 
-// router.post('/login', async (req: Request, res: Response, next: NextFunction) => {});
-// router.post('/logout', async (req: Request, res: Response, next: NextFunction) => {});
+router.post('/login', loginMiddleware/*, notLoggedInMiddleware*/);
+
+router.post('/logout', logoutMiddleware);
 
 router.post('/create', async (req: Request, res: Response, next: NextFunction) => {
 	try {
