@@ -25,7 +25,7 @@ router.post('/create', async (req: Request, res: Response, next: NextFunction) =
 	}
 });
 
-router.get('/id/:id', verifyJWT, async (req: Request, res: Response, next: NextFunction) => {
+router.get('/id/:id', verifyJWT , async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const user = await UserService.readUserByID(Number(req.params.id));
 		res.status(statusCodes.SUCCESS).json(user);
