@@ -1,6 +1,6 @@
 import UserService from '../services/UserService';
 import { Router, Request, Response, NextFunction } from 'express';
-import { loginMiddleware, verifyJWT, notLoggedIn } from "../../../middlewares/auth-middlewares";
+import { loginMiddleware, verifyJWT, notLoggedInMiddleware, logoutMiddleware } from "../../../middlewares/auth-middlewares";
 
 // import UserRoles from '../../../../utils/constants/userRoles';
 // import statusCodes from '../../../../utils/constants/statusCodes';
@@ -12,17 +12,17 @@ import statusCodes from '../../../../utils/constants/statusCodes';
 
 const router = Router();
 
-router.post('/login', async (req: Request, res: Response, next: NextFunction) => {
-	try {
-		await notLoggedIn(req, res, next);
-		await loginMiddleware(req, res, next);
-	} catch (error) {
-		next(error);
-	}
+// router.post('/login', async (req: Request, res: Response, next: NextFunction) => {
+// 	try {
+// 		await notLoggedInMiddleware(req, res, next);
+// 		await loginMiddleware(req, res, next);
+// 	} catch (error) {
+// 		next(error);
+// 	}
 
-});
+// });
 // router.post('/logout', async (req: Request, res: Response, next: NextFunction) => {});
-router.post('/login', loginMiddleware, /*notLoggedInMiddleware*/);
+router.post('/login', notLoggedInMiddleware, loginMiddleware);
 
 router.post('/logout', logoutMiddleware);
 
