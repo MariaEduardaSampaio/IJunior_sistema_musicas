@@ -1,6 +1,8 @@
 import prisma from '../../../../config/client';
 import { User } from '@prisma/client';
 import bcrypt from 'bcrypt';
+import { QueryError } from '../../../../errors/QueryError';
+import { PermissionError } from '../../../../errors/PermissionError';
 
 class UserService {
 	async encryptPassword(password: string) {
@@ -11,9 +13,16 @@ class UserService {
 
 	async create(body: User) {
 
+		if (body.role == 'admin') {
+			throw new PermissionError('Não é possível criar um usuário com o cargo de administrador!');
+		}
+		
 		body.password = await this.encryptPassword(body.password);
-
-		const user = await prisma.user.create({
+		const user = await prisma.user.findUnique({where: {email: body.email}});
+		if(user) {
+			throw new QueryError('Email já cadastrado!');
+		}else{
+			const user = await prisma.user.create({
 			data: {
 				email: body.email,
 				name: body.name,
@@ -21,9 +30,13 @@ class UserService {
 				photo: body.photo,
 				role: body.role,
 			}
-		});
+			
+			}	
+			)
+			return user;
+	};
 
-		return user;
+		
 	}
 
 	async deleteUser(id: number) {
