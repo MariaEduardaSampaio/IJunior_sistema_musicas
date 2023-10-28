@@ -2,11 +2,12 @@ import ArtistService from '../services/ArtistService';
 import { Router, Request, Response, NextFunction } from 'express';
 import statusCodes from '../../../../utils/constants/statusCodes';
 import { InvalidParamError } from '../../../../errors/InvalidParamError';
-
+import checkRoles from '../../../middlewares/checkRole';
+import UserRoles from '../../../../utils/constants/userRoles';
 const router = Router();
 
 
-router.post('/create', async (req: Request, res: Response, next: NextFunction) => {
+router.post('/create', checkRoles([UserRoles.ADMIN]), async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		if (req.body.name === undefined) {
 			throw new InvalidParamError('Nome não pode ser vazio');
@@ -21,7 +22,7 @@ router.post('/create', async (req: Request, res: Response, next: NextFunction) =
 });
 
 
-router.put('/update', async (req: Request, res: Response, next: NextFunction) => {
+router.put('/update', checkRoles([UserRoles.ADMIN]), async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const { streams, id, ...rest } = req.body;
 		if (req.body.id === undefined) {
@@ -36,7 +37,7 @@ router.put('/update', async (req: Request, res: Response, next: NextFunction) =>
 	}
 });
 
-router.get('/id/:id', async (req: Request, res: Response, next: NextFunction) => {
+router.get('/id/:id', checkRoles([UserRoles.ADMIN]), async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		if (req.params.id === undefined) {
 			throw new InvalidParamError('ID não pode ser vazio');
@@ -50,7 +51,7 @@ router.get('/id/:id', async (req: Request, res: Response, next: NextFunction) =>
 	}
 });
 
-router.get('/name/:name', async (req: Request, res: Response, next: NextFunction) => {
+router.get('/name/:name', checkRoles([UserRoles.ADMIN, UserRoles.USER]), async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		if (req.params.name === undefined) {
 			throw new InvalidParamError('Nome não pode ser vazio');
@@ -64,7 +65,7 @@ router.get('/name/:name', async (req: Request, res: Response, next: NextFunction
 	}
 });
 
-router.get('/allArtists', async (req: Request, res: Response, next: NextFunction) => {
+router.get('/allArtists', checkRoles([UserRoles.ADMIN]), async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const artists = await ArtistService.readAllArtists();
 		res.status(statusCodes.SUCCESS).json(artists);
@@ -73,7 +74,7 @@ router.get('/allArtists', async (req: Request, res: Response, next: NextFunction
 	}
 });
 
-router.delete('/delete/:id', async (req: Request, res: Response, next: NextFunction) => {
+router.delete('/delete/:id', checkRoles([UserRoles.ADMIN]), async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		if (req.params.id === undefined) {
 			throw new InvalidParamError('ID não pode ser vazio');
