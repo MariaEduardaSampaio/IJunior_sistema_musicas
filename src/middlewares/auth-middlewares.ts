@@ -53,20 +53,37 @@ async function loginMiddleware(req: Request, res: Response, next: NextFunction) 
 	}
 }
 
-async function notLoggedIn(req: Request, res: Response, next: NextFunction) {
+async function notLoggedInMiddleware(req: Request, res: Response, next: NextFunction) {
 	try {
 		const token = cookieExtractor(req);
 
 		if (token) {
 			throw new PermissionError("Você já está logado.");
 		} else {
-			return
+			next()
 		}
 	} catch (error) {
 		next(error);
 	}
 }
 
+function logoutMiddleware(req: Request, res: Response, next: NextFunction) {
+	try {
+
+		const token = cookieExtractor(req);
+
+		if (!token) {
+			throw new PermissionError('Você precisa estar logado para realizar esta ação!');
+		}
+
+		res.clearCookie('jwt');
+		res.status(statusCodes.SUCCESS).json('Usuário deslogado com sucesso!');
+	} catch (error) {
+		next(error);
+	}
+}
+
+// async function notLoggedIn(req: Request, res: Response, next: NextFunction){}
 
 function verifyJWT(req: Request, res: Response, next: NextFunction) {
 	try {
@@ -85,5 +102,4 @@ function verifyJWT(req: Request, res: Response, next: NextFunction) {
 }
 
 
-
-export  { loginMiddleware, verifyJWT, notLoggedIn }; // adicionar notLoggedIn
+export { loginMiddleware, logoutMiddleware, notLoggedInMiddleware, verifyJWT }; // adicionar notLoggedIn
