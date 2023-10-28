@@ -1,6 +1,7 @@
 import UserService from '../services/UserService';
 import { Router, Request, Response, NextFunction } from 'express';
-import { loginMiddleware, logoutMiddleware/*, notLoggedIn*/ } from '../../../middlewares/auth-middlewares';
+import { loginMiddleware, logoutMiddleware,/*, notLoggedIn*/ 
+verifyJWT} from '../../../middlewares/auth-middlewares';
 // import UserRoles from '../../../../utils/constants/userRoles';
 // import statusCodes from '../../../../utils/constants/statusCodes';
 
@@ -11,7 +12,7 @@ import statusCodes from '../../../../utils/constants/statusCodes';
 
 const router = Router();
 
-router.post('/login', loginMiddleware/*, notLoggedInMiddleware*/);
+router.post('/login', loginMiddleware, /*notLoggedInMiddleware*/);
 
 router.post('/logout', logoutMiddleware);
 
@@ -24,7 +25,7 @@ router.post('/create', async (req: Request, res: Response, next: NextFunction) =
 	}
 });
 
-router.get('/id/:id', async (req: Request, res: Response, next: NextFunction) => {
+router.get('/id/:id', verifyJWT, async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const user = await UserService.readUserByID(Number(req.params.id));
 		res.status(statusCodes.SUCCESS).json(user);
@@ -33,7 +34,7 @@ router.get('/id/:id', async (req: Request, res: Response, next: NextFunction) =>
 	}
 });
 
-router.get('/email/:email', async (req: Request, res: Response, next: NextFunction) => {
+router.get('/email/:email', verifyJWT, async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const user = await UserService.readByEmail(req.params.email);
 		res.status(statusCodes.SUCCESS).json(user);
@@ -42,7 +43,7 @@ router.get('/email/:email', async (req: Request, res: Response, next: NextFuncti
 	}
 });
 
-router.get('/allUsers', async (req: Request, res: Response, next: NextFunction) => {
+router.get('/allUsers', verifyJWT, async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const users = await UserService.read();
 		res.status(statusCodes.SUCCESS).json(users);
@@ -51,7 +52,7 @@ router.get('/allUsers', async (req: Request, res: Response, next: NextFunction) 
 	}
 });
 
-router.delete('/delete/:id', async (req: Request, res: Response, next: NextFunction) => {
+router.delete('/delete/:id', verifyJWT, async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		await UserService.deleteUser(parseInt(req.params.id));
 		res.status(statusCodes.NO_CONTENT).json('Usuário deletado com sucesso!');
@@ -61,13 +62,13 @@ router.delete('/delete/:id', async (req: Request, res: Response, next: NextFunct
 	}
 });
 
-router.put('/update', async (req: Request, res: Response, next: NextFunction) => {
+router.put('/update', verifyJWT, async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const { id, name, email, photo, password, role } = req.body;
 		if (req.body.id === undefined) {
 			res.status(statusCodes.BAD_REQUEST).json('O campo id é obrigatório!');
 		}
-		await UserService.updateUser({ id: parseInt(id), name, email, photo, password, role });
+		await UserService.updateUser({ id: parseInt(id), name, email, photo, password, role, });
 		res.status(statusCodes.NO_CONTENT).json('Usuário atualizado com sucesso!');
 	} catch (error) {
 		next(error);
