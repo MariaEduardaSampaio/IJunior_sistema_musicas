@@ -6,17 +6,12 @@ import { verifyJWT } from '../../../middlewares/auth-middlewares';
 import { NotAuthorizedError } from '../../../../errors/NotAuthorizedError';
 const router = Router();
 
-function verifyAdmin(req: Request, res: Response, next: NextFunction, messageError: string) {
-	if (req.user.role !== UserRoles.ADMIN) {
-		throw new NotAuthorizedError(messageError);
-	}
-	next();
-}
-
 router.post('/create', verifyJWT, async (req: Request, res: Response, next: NextFunction) => {
 	try {
-		const messageError = 'Você não tem permissão para criar um artista';
-		verifyAdmin(req, res, next, messageError);
+		if (req.user.role !== UserRoles.ADMIN) {
+			throw new NotAuthorizedError('Você não tem permissão para criar um artista');
+		}
+
 		await ArtistService.createArtist(req.body);
 		res.status(statusCodes.CREATED).json('Artista criado com sucesso!');
 	}
@@ -26,10 +21,11 @@ router.post('/create', verifyJWT, async (req: Request, res: Response, next: Next
 });
 
 
-router.put('/update', async (req: Request, res: Response, next: NextFunction) => {
+router.put('/update', verifyJWT, async (req: Request, res: Response, next: NextFunction) => {
 	try {
-		const messageError = 'Você não tem permissão para atualizar um artista';
-		verifyAdmin(req, res, next, messageError);
+		if (req.user.role !== UserRoles.ADMIN) {
+			throw new NotAuthorizedError('Você não tem permissão para atualizar um artista');
+		}
 
 		const { streams, id, ...rest } = req.body;
 		await ArtistService.updateArtist({ id: parseInt(id), streams: parseInt(streams), ...rest });
@@ -40,10 +36,11 @@ router.put('/update', async (req: Request, res: Response, next: NextFunction) =>
 	}
 });
 
-router.get('/id/:id', async (req: Request, res: Response, next: NextFunction) => {
+router.get('/id/:id', verifyJWT, async (req: Request, res: Response, next: NextFunction) => {
 	try {
-		const messageError = 'Você não tem permissão para buscar um artista por id';
-		verifyAdmin(req, res, next, messageError);
+		if (req.user.role !== UserRoles.ADMIN) {
+			throw new NotAuthorizedError('Você não tem permissão para buscar um artista por id');
+		}
 
 		const artists = await ArtistService.readArtistByID(Number(req.params.id));
 		res.status(statusCodes.SUCCESS).json(artists);
@@ -72,10 +69,11 @@ router.get('/allArtists', async (req: Request, res: Response, next: NextFunction
 	}
 });
 
-router.delete('/delete/:id', async (req: Request, res: Response, next: NextFunction) => {
+router.delete('/delete/:id', verifyJWT, async (req: Request, res: Response, next: NextFunction) => {
 	try {
-		const messageError = 'Você não tem permissão para deletar um artista';
-		verifyAdmin(req, res, next, messageError);
+		if (req.user.role !== UserRoles.ADMIN) {
+			throw new NotAuthorizedError('Você não tem permissão para deletar um artista');
+		}
 
 		await ArtistService.deleteArtist(parseInt(req.params.id));
 		res.status(statusCodes.NO_CONTENT).json('Artista deletado com sucesso!');
