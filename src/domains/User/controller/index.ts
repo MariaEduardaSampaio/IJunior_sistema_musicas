@@ -11,7 +11,7 @@ import { loginMiddleware, logoutMiddleware, verifyJWT, notLoggedInMiddleware } f
 
 const router = Router();
 
-router.post('/login', loginMiddleware, notLoggedInMiddleware);
+router.post('/login', notLoggedInMiddleware, loginMiddleware);
 
 router.post('/logout', logoutMiddleware);
 

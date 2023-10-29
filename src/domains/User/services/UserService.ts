@@ -2,7 +2,7 @@ import prisma from '../../../../config/client';
 import { User } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import { QueryError } from '../../../../errors/QueryError';
-import { InvalidParamError } from '../../../../errors/InvalidParamError';
+
 class UserService {
 	async encryptPassword(password: string) {
 		const salt = await bcrypt.genSalt(10);
@@ -11,62 +11,55 @@ class UserService {
 	}
 
 	async create(body: User) {
-		const user = await prisma.user.findUnique({ where: { email: body.email } });
+		const userEmail = await prisma.user.findUnique({ where: { email: body.email } });
 
-		if (user) {
+		if (userEmail) {
 			throw new QueryError('Email já cadastrado!');
-		} else {
-			body.password = await this.encryptPassword(body.password);
-			const user = await prisma.user.create({
-				data: {
-					email: body!.email,
-					name: body!.name,
-					password: body!.password,
-					photo: body.photo,
-					role: body!.role,
-				}
-
-			});
-			return user;
 		}
+
+		body.password = await this.encryptPassword(body.password);
+		// corrigir: não está barrando valores nulos no create
+		const createdUser = {
+			email: body!.email,
+			name: body!.name,
+			password: body!.password,
+			photo: body.photo,
+			role: body!.role,
+		} as User;
+
+		const user = await prisma.user.create({ data: createdUser });
+		return user;
+
 	}
 
 	async deleteUser(id: number) {
-		if (id === undefined) {
-			throw new InvalidParamError('ID não pode ser vazio.');
+		const existeUser = await prisma.user.findUnique({ where: { id } });
+		if (existeUser === null) {
+			throw new QueryError('Usuário não encontrado.');
 		}
 
 		const user = await prisma.user.delete({
 			where: { id }
-		});
 
-		if (user === null) {
-			throw new QueryError('Usuário não encontrado.');
-		}
+		});
 		return user;
 	}
 
 
 	async readUserByID(id: number) {
-		if (id === undefined) {
-			throw new InvalidParamError('ID não pode ser vazio.');
+		const existeUser = await prisma.user.findUnique({ where: { id } });
+		if (existeUser === null) {
+			throw new QueryError('Usuário não encontrado.');
 		}
 
 		const user = await prisma.user.findUnique({
 			where: { id }
 		});
 
-		if (user === null) {
-			throw new QueryError('Usuário não encontrado.');
-		}
 		return user;
 	}
 
 	async readByEmail(email: string) {
-		if (email === undefined) {
-			throw new InvalidParamError('Email não pode ser vazio.');
-		}
-
 		const user = await prisma.user.findUnique({
 			where: { email }
 		});
@@ -87,8 +80,8 @@ class UserService {
 		if (body.password) body.password = await this.encryptPassword(body.password);
 
 		const existeUser = await prisma.user.findUnique({ where: { email: body.email } });
-		if (existeUser) {
-			throw new QueryError('Email já cadastrado!');
+		if (!existeUser) {
+			throw new QueryError('Não é possível mudar o email.');
 		}
 
 		const user = await prisma.user.update({

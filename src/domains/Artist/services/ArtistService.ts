@@ -9,7 +9,8 @@ class ArtistService {
 			throw new InvalidParamError('Streams não pode ser menor que 0');
 		}
 
-		const createArtist = await prisma.artist.create({
+		// corrigir: não está barrando valores nulos no create
+		const createArtist: Artist = await prisma.artist.create({
 			data: {
 				name: body!.name,
 				photo: body.photo,
@@ -21,10 +22,6 @@ class ArtistService {
 	}
 
 	async readArtistByID(id: number) {
-		if (id === undefined) {
-			throw new InvalidParamError('ID não pode ser vazio');
-		}
-
 		const artistID = await prisma.artist.findUnique({
 			where: { id }
 		});
@@ -36,12 +33,7 @@ class ArtistService {
 		return artistID;
 	}
 
-
 	async readArtistByName(name: string) {
-		if (name === undefined) {
-			throw new InvalidParamError('Nome não pode ser vazio');
-		}
-
 		const artist = await prisma.artist.findMany({
 			where: { name }
 		});
@@ -64,17 +56,14 @@ class ArtistService {
 	}
 
 	async deleteArtist(id: number) {
-		if (id === undefined) {
-			throw new InvalidParamError('ID não pode ser vazio');
+		const existeArtist = await prisma.user.findUnique({ where: { id } });
+		if (existeArtist === null) {
+			throw new QueryError('Artista não encontrado.');
 		}
 
 		const artist = await prisma.artist.delete({
 			where: { id }
 		});
-
-		if (artist === null) {
-			throw new InvalidParamError('Artista não encontrado');
-		}
 
 		return artist;
 	}
@@ -83,24 +72,15 @@ class ArtistService {
 		if (body.streams < 0) {
 			throw new InvalidParamError('Streams não pode ser menor que 0');
 		}
-
+		// corrigir: não está barrando valores nulos no update
 		const artist = await prisma.artist.update({
 			data: {
 				name: body!.name,
 				photo: body.photo,
 				streams: Number(body!.streams),
 			},
-			where: { id: body!.id }
+			where: { id: body.id }
 		});
-
-		if (artist === null) {
-			throw new InvalidParamError('Artista não encontrado');
-		}
-
-		if (body === artist) {
-			throw new InvalidParamError('Nenhum dado foi alterado');
-		}
-
 		return artist;
 	}
 
