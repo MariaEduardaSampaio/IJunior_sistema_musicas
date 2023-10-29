@@ -42,7 +42,7 @@ router.get('/email/:email', verifyJWT, async (req: Request, res: Response, next:
 	}
 });
 
-router.get('/allUsers', verifyJWT, verifyJWT, async (req: Request, res: Response, next: NextFunction) => {
+router.get('/allUsers', verifyJWT, async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		if (req.user.role != UserRoles.ADMIN) {
 			throw new NotAuthorizedError('Você não tem permissão para visualizar todos os usuários.');

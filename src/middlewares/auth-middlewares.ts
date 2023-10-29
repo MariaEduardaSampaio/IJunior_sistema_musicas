@@ -45,8 +45,6 @@ async function loginMiddleware(req: Request, res: Response, next: NextFunction) 
 
 		generateJWT(user, res);
 
-		// res.status(statusCodes.NO_CONTENT).end();
-
 		res.status(statusCodes.SUCCESS).json('Usuário logado com sucesso!');
 	} catch (error) {
 		next(error);
@@ -82,8 +80,6 @@ function logoutMiddleware(req: Request, res: Response, next: NextFunction) {
 		next(error);
 	}
 }
-
-// async function notLoggedIn(req: Request, res: Response, next: NextFunction){}
 
 function verifyJWT(req: Request, res: Response, next: NextFunction) {
 	try {
