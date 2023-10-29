@@ -2,9 +2,10 @@ import UserService from '../services/UserService';
 import { Router, Request, Response, NextFunction } from 'express';
 import UserRoles from '../../../../utils/constants/userRoles';
 import statusCodes from '../../../../utils/constants/statusCodes';
-import checkRoles from '../../../middlewares/checkRole';
+// import checkRoles from '../../../middlewares/checkRole';
 import { NotAuthorizedError } from '../../../../errors/NotAuthorizedError';
 import { loginMiddleware, logoutMiddleware, verifyJWT, notLoggedInMiddleware } from '../../../middlewares/auth-middlewares';
+import checkRoles from '../../../middlewares/checkRole';
 
 // import { userInfo } from 'os';
 // import { parse } from 'path';
@@ -15,8 +16,12 @@ router.post('/login', notLoggedInMiddleware, loginMiddleware);
 
 router.post('/logout', logoutMiddleware);
 
-router.post('/create', checkRoles([UserRoles.ADMIN, UserRoles.USER]), async (req: Request, res: Response, next: NextFunction) => {
+router.post('/create', async (req: Request, res: Response, next: NextFunction) => {
 	try {
+		if(req.body.role == UserRoles.ADMIN && (!req.user || req.user.role != UserRoles.ADMIN)) {
+			throw new NotAuthorizedError('Você não tem permissão para criar um usuário com esse cargo.');
+		}
+
 		await UserService.create(req.body);
 		res.status(statusCodes.CREATED).json('Usuário criado com sucesso!');
 	} catch (error) {
@@ -42,11 +47,8 @@ router.get('/email/:email', verifyJWT, async (req: Request, res: Response, next:
 	}
 });
 
-router.get('/allUsers', verifyJWT, async (req: Request, res: Response, next: NextFunction) => {
+router.get('/allUsers', checkRoles([UserRoles.ADMIN]), verifyJWT, async (req: Request, res: Response, next: NextFunction) => {
 	try {
-		if (req.user.role != UserRoles.ADMIN) {
-			throw new NotAuthorizedError('Você não tem permissão para visualizar todos os usuários.');
-		}
 		const users = await UserService.read();
 		res.status(statusCodes.SUCCESS).json(users);
 	} catch (error) {

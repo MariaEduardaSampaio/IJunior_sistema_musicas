@@ -8,11 +8,11 @@ class MusicService {
 	async createMusic(body: Music, id: number){
 		const musicExist = await prisma.music.findFirst({
 			where: {
-			  name: body.name,
-			  album: body.album,
-			  genre: body.genre,
+				name: body.name,
+				album: body.album,
+				genre: body.genre,
 			},
-		  });
+		});
 
 		if (musicExist) {
 			throw new QueryError ('Música já cadastrada.');

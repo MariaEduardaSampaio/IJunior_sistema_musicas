@@ -4,15 +4,12 @@ import { Router, Request, Response, NextFunction } from 'express';
 import checkRoles from '../../../middlewares/checkRole';
 import UserRoles from '../../../../utils/constants/userRoles';
 import { verifyJWT } from '../../../middlewares/auth-middlewares';
-import { NotAuthorizedError } from '../../../../errors/NotAuthorizedError';
+// import { NotAuthorizedError } from '../../../../errors/NotAuthorizedError';
 
 const router = Router();
 
 router.put('/update', verifyJWT, checkRoles([UserRoles.ADMIN, UserRoles.USER]), async (req: Request, res: Response, next: NextFunction) => {
 	try {
-		if (req.user.role != UserRoles.ADMIN) {
-			throw new NotAuthorizedError('Você não tem permissão para alterar músicas.');
-		}
 		const { id, artistId, ...rest } = req.body;
 		await MusicService.updateMusic({ id: parseInt(id), artistId: parseInt(artistId), ...rest });
 		res.status(statusCodes.SUCCESS).json('Música atualizada com sucesso!');
@@ -54,9 +51,6 @@ router.get('/id/:id', verifyJWT, async (req: Request, res: Response, next: NextF
 
 router.post('/create', verifyJWT, checkRoles([UserRoles.ADMIN, UserRoles.USER]), async (req: Request, res: Response, next: NextFunction) => {
 	try {
-		if (req.user.role != UserRoles.ADMIN) {
-			throw new NotAuthorizedError('Você não tem permissão para criar músicas.');
-		}
 		await MusicService.createMusic(req.body, parseInt(req.body.artistId));
 		res.status(statusCodes.CREATED).json('Música criada com sucesso!');
 
@@ -65,13 +59,10 @@ router.post('/create', verifyJWT, checkRoles([UserRoles.ADMIN, UserRoles.USER]),
 	}
 });
 
-router.delete('/delete/:id', verifyJWT, checkRoles([UserRoles.ADMIN, UserRoles.USER]), async (req: Request, res: Response, next: NextFunction) => {
+router.delete('/delete/:id', verifyJWT, checkRoles([UserRoles.ADMIN]), async (req: Request, res: Response, next: NextFunction) => {
 
 	try {
-		if (req.user.role != UserRoles.ADMIN) {
-			throw new NotAuthorizedError('Você não tem permissão para deletar músicas.');
-		}
-		const musics = await MusicService.deleteMusic(parseInt(req.params.id));
+		await MusicService.deleteMusic(parseInt(req.params.id));
 		res.status(statusCodes.SUCCESS).json('Música deletada com sucesso!');
 	}
 	catch (error) {
