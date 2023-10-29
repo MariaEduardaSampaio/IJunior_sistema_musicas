@@ -102,4 +102,4 @@ function verifyJWT(req: Request, res: Response, next: NextFunction) {
 }
 
 
-export { loginMiddleware, logoutMiddleware, notLoggedInMiddleware, verifyJWT }; // adicionar notLoggedIn
+export { loginMiddleware, logoutMiddleware, notLoggedInMiddleware, verifyJWT };
