@@ -46,7 +46,7 @@ async function loginMiddleware(req: Request, res: Response, next: NextFunction) 
 		generateJWT(user, res);
 
 		// res.status(statusCodes.NO_CONTENT).end();
-		
+
 		res.status(statusCodes.SUCCESS).json('Usuário logado com sucesso!');
 	} catch (error) {
 		next(error);
@@ -58,9 +58,9 @@ async function notLoggedInMiddleware(req: Request, res: Response, next: NextFunc
 		const token = cookieExtractor(req);
 
 		if (token) {
-			throw new PermissionError("Você já está logado.");
+			throw new PermissionError('Você já está logado.');
 		} else {
-			next()
+			next();
 		}
 	} catch (error) {
 		next(error);
