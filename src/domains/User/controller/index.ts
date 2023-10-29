@@ -1,9 +1,6 @@
 import UserService from '../services/UserService';
 import { Router, Request, Response, NextFunction } from 'express';
-import { loginMiddleware, verifyJWT, notLoggedInMiddleware, logoutMiddleware } from "../../../middlewares/auth-middlewares";
-
-// import UserRoles from '../../../../utils/constants/userRoles';
-// import statusCodes from '../../../../utils/constants/statusCodes';
+import { loginMiddleware, logoutMiddleware, verifyJWT } from '../../../middlewares/auth-middlewares';
 
 // import { userInfo } from 'os';
 // import { parse } from 'path';
@@ -12,17 +9,7 @@ import statusCodes from '../../../../utils/constants/statusCodes';
 
 const router = Router();
 
-// router.post('/login', async (req: Request, res: Response, next: NextFunction) => {
-// 	try {
-// 		await notLoggedInMiddleware(req, res, next);
-// 		await loginMiddleware(req, res, next);
-// 	} catch (error) {
-// 		next(error);
-// 	}
-
-// });
-// router.post('/logout', async (req: Request, res: Response, next: NextFunction) => {});
-router.post('/login', notLoggedInMiddleware, loginMiddleware);
+router.post('/login', loginMiddleware, /*notLoggedInMiddleware*/);
 
 router.post('/logout', logoutMiddleware);
 
@@ -35,7 +22,7 @@ router.post('/create', async (req: Request, res: Response, next: NextFunction) =
 	}
 });
 
-router.get('/id/:id', verifyJWT , async (req: Request, res: Response, next: NextFunction) => {
+router.get('/id/:id', verifyJWT, async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const user = await UserService.readUserByID(Number(req.params.id));
 		res.status(statusCodes.SUCCESS).json(user);
