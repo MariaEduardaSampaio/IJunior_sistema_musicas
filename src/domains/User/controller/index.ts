@@ -2,13 +2,9 @@ import UserService from '../services/UserService';
 import { Router, Request, Response, NextFunction } from 'express';
 import UserRoles from '../../../../utils/constants/userRoles';
 import statusCodes from '../../../../utils/constants/statusCodes';
-// import checkRoles from '../../../middlewares/checkRole';
 import { NotAuthorizedError } from '../../../../errors/NotAuthorizedError';
 import { loginMiddleware, logoutMiddleware, verifyJWT, notLoggedInMiddleware } from '../../../middlewares/auth-middlewares';
 import checkRoles from '../../../middlewares/checkRole';
-
-// import { userInfo } from 'os';
-// import { parse } from 'path';
 
 const router = Router();
 
@@ -47,7 +43,7 @@ router.get('/email/:email', verifyJWT, async (req: Request, res: Response, next:
 	}
 });
 
-router.get('/allUsers', checkRoles([UserRoles.ADMIN]), verifyJWT, async (req: Request, res: Response, next: NextFunction) => {
+router.get('/allUsers',verifyJWT, checkRoles([UserRoles.ADMIN]), async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const users = await UserService.read();
 		res.status(statusCodes.SUCCESS).json(users);
@@ -63,7 +59,13 @@ router.delete('/delete/:id', verifyJWT, async (req: Request, res: Response, next
 		}
 
 		await UserService.deleteUser(parseInt(req.params.id));
-		res.status(statusCodes.NO_CONTENT).json('Usuário deletado com sucesso!');
+
+		if(req.user.id == req.body.id){ // Efetuar logout caso o usuário deletado seja o usuário logado
+			logoutMiddleware(req, res, next);
+		}
+		else{
+			res.status(statusCodes.NO_CONTENT).json('Usuário deletado com sucesso!');
+		}
 	}
 	catch (error) {
 		next(error);
@@ -72,8 +74,11 @@ router.delete('/delete/:id', verifyJWT, async (req: Request, res: Response, next
 
 router.put('/update', verifyJWT, async (req: Request, res: Response, next: NextFunction) => {
 	try {
-		if (req.user.id != parseInt(req.body.id)) {
+		if (req.user.role != UserRoles.ADMIN && req.user.id != parseInt(req.body.id)) {
 			throw new NotAuthorizedError('Você não tem permissão para atualizar outro usuário.');
+		}
+		if(req.user.role != UserRoles.ADMIN && req.body.role == UserRoles.ADMIN){
+			throw new NotAuthorizedError('Você não tem permissão para atualizar o cargo de um usuário.');
 		}
 
 		const { id, name, email, photo, password, role } = req.body;
