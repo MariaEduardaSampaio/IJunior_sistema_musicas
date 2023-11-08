@@ -72,7 +72,6 @@ class ArtistService {
 		if (body.streams < 0) {
 			throw new InvalidParamError('Streams não pode ser menor que 0');
 		}
-		// corrigir: não está barrando valores nulos no update
 		const artist = await prisma.artist.update({
 			data: {
 				name: body!.name,

@@ -5,7 +5,7 @@ import { QueryError } from '../../../../errors/QueryError';
 
 class MusicService {
 
-	async createMusic(body: Music, id: number){
+	async createMusic(body: Music, id: number) {
 		const musicExist = await prisma.music.findFirst({
 			where: {
 				name: body.name,
@@ -15,16 +15,16 @@ class MusicService {
 		});
 
 		if (musicExist) {
-			throw new QueryError ('Música já cadastrada.');
+			throw new QueryError('Música já cadastrada.');
 		}
 
-		const createMusic = await prisma.music.create({ 
-			data:{
+		const createMusic = await prisma.music.create({
+			data: {
 				name: body.name,
 				genre: body.genre,
 				album: body.album,
-				artist:{
-					connect:{
+				artist: {
+					connect: {
 						id: id
 					}
 				}
@@ -33,7 +33,7 @@ class MusicService {
 		return createMusic;
 	}
 
-	async readAll(){ 
+	async readAll() {
 		const music = await prisma.music.findMany();
 		if (music.length === 0) {
 			throw new QueryError('Nenhuma música encontrada.');
@@ -41,7 +41,7 @@ class MusicService {
 		return music;
 	}
 
-	async readByName(name : string){
+	async readByName(name: string) {
 		const music = await prisma.music.findMany({
 			where: { name }
 		});
@@ -51,7 +51,7 @@ class MusicService {
 		return music;
 	}
 
-	async readById(id : number){
+	async readById(id: number) {
 		const music = await prisma.music.findUnique({
 			where: { id }
 		});

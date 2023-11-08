@@ -18,7 +18,6 @@ class UserService {
 		}
 
 		body.password = await this.encryptPassword(body.password);
-		// corrigir: não está barrando valores nulos no create
 		const createdUser = {
 			email: body!.email,
 			name: body!.name,
