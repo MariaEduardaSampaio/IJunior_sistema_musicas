@@ -30,6 +30,7 @@
 
 -> instalações da 7a semana:
     npm install jest --save-dev
+    npm i --save-dev @types/jest
 
 adicionar no script start do package-json:
 "tsnd --rs --respawn --transpile-only --exit-child index.ts"
