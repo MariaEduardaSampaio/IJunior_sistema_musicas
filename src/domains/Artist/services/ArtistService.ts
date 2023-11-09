@@ -9,7 +9,6 @@ class ArtistService {
 			throw new InvalidParamError('Streams não pode ser menor que 0');
 		}
 
-		// corrigir: não está barrando valores nulos no create
 		const createArtist: Artist = await prisma.artist.create({
 			data: {
 				name: body!.name,
