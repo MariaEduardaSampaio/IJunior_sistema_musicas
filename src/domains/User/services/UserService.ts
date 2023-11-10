@@ -10,8 +10,12 @@ class UserService {
 		return encryptedPassword;
 	}
 
-	// TODO - Lançar excecao caso a senha/nome/role seja vazia
 	async create(body: User) {
+		if(!body.email || 
+			!body.password || 
+			!body.name ||
+			!body.role) throw new QueryError('Campos obrigatórios não preenchidos.'); 
+
 		const userEmail = await prisma.user.findUnique({ where: { email: body.email } });
 
 		if (userEmail) {

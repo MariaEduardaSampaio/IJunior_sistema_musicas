@@ -103,6 +103,31 @@ describe('create', () => {
 		}).rejects.toThrow(new QueryError('Email já cadastrado!'));
 	});
 
+	test('algum campo obrigatório não foi preenchido ==> lança uma exceção de Query', async () => {
+		// ARRANGE
+		const mockUser = {} as User;
+
+		// ACT & ASSERT
+		expect(async ()=> { await UserService.create(mockUser); })
+			.rejects.toThrow(new QueryError('Campos obrigatórios não preenchidos.'));
+
+		mockUser.id = 1;
+		expect(async ()=> { await UserService.create(mockUser); })
+			.rejects.toThrow(new QueryError('Campos obrigatórios não preenchidos.'));
+
+		mockUser.email = 'lucas-example@gmail.com';
+		expect(async ()=> { await UserService.create(mockUser); })
+			.rejects.toThrow(new QueryError('Campos obrigatórios não preenchidos.'));
+
+		mockUser.password = 'password123';
+		expect(async ()=> { await UserService.create(mockUser); })
+			.rejects.toThrow(new QueryError('Campos obrigatórios não preenchidos.'));
+
+		mockUser.name = 'Lucas Paulo';
+		expect(async ()=> { await UserService.create(mockUser); })
+			.rejects.toThrow(new QueryError('Campos obrigatórios não preenchidos.'));
+		
+	});
 });
 
 describe('deleteUser', () => {
