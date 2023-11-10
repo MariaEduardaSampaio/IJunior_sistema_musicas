@@ -61,6 +61,7 @@ class MusicService {
 		return music;
 	}
 
+	//TODO: Verificar nulo nos campos
 	async updateMusic(body: Music) {
 		const existMusic = await prisma.music.findUnique({ where: { id: body.id } });
 		if (existMusic === null) {
