@@ -1,28 +1,8 @@
 import UserService from './UserService';
 import prisma from '../../../../config/client';
 import { User } from '@prisma/client';
-
-// Mock the Prisma user schema
-// const prisma = {
-// 	user: {
-// 		create: jest.fn(),
-// 		delete: jest.fn(),
-// 		findUnique: jest.fn(),
-// 		findMany: jest.fn(),
-// 		update: jest.fn(),
-// 	},
-// };  
-
-// Mock the Prisma user schema
-// jest.mock('../../../../config/client', () => ({
-// 	user: {
-// 		create: jest.fn(),
-// 		delete: jest.fn(),
-// 		findUnique: jest.fn(),
-// 		findMany: jest.fn(),
-// 		update: jest.fn(),
-// 	},
-// }));
+import { QueryError } from '../../../../errors/QueryError';
+import bcrypt from 'bcrypt';
 
 describe('create', () => {
 	beforeEach(() => {
@@ -85,6 +65,44 @@ describe('create', () => {
 		});
 	});
 
+	test('email do usuário a ser inserido já existe ==> lança uma exceção de Query', async () => {
+		// ARRANGE
+		const mockUser = {
+			name: 'Lucas Paulo',
+			email: 'lucaspaulo@example.com',
+			password: 'password123',
+			photo: 'photo.jpg',
+			role: 'ADMIN',
+		} as User;
+
+		const mockEncryptedPassword = 'encryptedPassword';
+
+		// A função encryptPassword vai retornar sempre 'encryptedPassword'
+		jest.spyOn(UserService, 'encryptPassword')
+			.mockResolvedValue(mockEncryptedPassword);
+			
+		// Temos esse usuario cadastrado no banco
+		jest.spyOn(prisma.user, 'findUnique')
+			.mockResolvedValue({
+				...mockUser,
+				id: 1,
+			});
+
+		// Não deve ser chamada
+		jest.spyOn(prisma.user, 'create')
+			.mockResolvedValue({
+				... mockUser, 
+				password: mockEncryptedPassword
+			});
+
+		// ACT & ASSERT
+
+		// Esperamos que UserService.create lance uma exceção de QueryError
+		return expect(async ()=>{
+			await UserService.create(mockUser);
+		}).rejects.toThrow(new QueryError('Email já cadastrado!'));
+	});
+
 });
 
 describe('deleteUser', () => {
@@ -100,6 +118,36 @@ describe('readByEmail', () => {
 });
 
 describe('encryptPassword', () => {
+
+	test('a senha é passada como entrada ==> retorna ela criptografada', async () => {
+		// ARRANGE
+		const mockPassword = 'password123';
+		const mockEncryptedPassword = 'encryptedPassword';
+		const mockSalt = 10;
+		const mockGenSalt = 'mockGenSalt'; 
+		
+		const saltSpy = jest.spyOn(bcrypt, 'genSalt')
+			.mockImplementation(() => Promise.resolve(mockGenSalt));
+
+		const bcryptSpy = jest.spyOn(bcrypt , 'hash')
+			.mockImplementation(()=> Promise.resolve(mockEncryptedPassword));
+		
+		// ACT
+		const encryptedPassword = await UserService.encryptPassword(mockPassword);
+
+		// ASSERT
+		expect(encryptedPassword).toEqual(mockEncryptedPassword);
+
+		// FIX HERE
+		// expect(saltSpy).toHaveBeenCalledTimes(1);
+		// expect(saltSpy).toHaveBeenCalledWith(mockSalt);
+
+		// expect(bcryptSpy).toHaveBeenCalledTimes(1);
+		// expect(bcryptSpy).toHaveBeenCalledWith(mockPassword, mockGenSalt);
+
+	});
+
+
 
 });
 

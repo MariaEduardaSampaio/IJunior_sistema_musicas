@@ -10,6 +10,7 @@ class UserService {
 		return encryptedPassword;
 	}
 
+	// TODO - Lançar excecao caso a senha/nome/role seja vazia
 	async create(body: User) {
 		const userEmail = await prisma.user.findUnique({ where: { email: body.email } });
 
