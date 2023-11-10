@@ -33,27 +33,35 @@ class ArtistService {
 	}
 
 	async readArtistByID(id: number) {
+		if (isNaN(id)) {
+			throw new InvalidParamError('ID deve ser um número.');
+		}
+
 		const artistID = await prisma.artist.findUnique({
 			where: { id }
 		});
 
 		if (artistID === null) {
-			throw new InvalidParamError('Artista não encontrado');
+			throw new InvalidParamError('Artista não encontrado.');
 		}
 
 		return artistID;
 	}
 
 	async readArtistByName(name: string) {
-		const artist = await prisma.artist.findMany({
+		if (name === '') {
+			throw new InvalidParamError('Nome não pode ser vazio.');
+		}
+
+		const artists = await prisma.artist.findMany({
 			where: { name }
 		});
 
-		if (artist === null) {
-			throw new InvalidParamError('Artista não encontrado');
+		if (artists.length == 0) {
+			throw new InvalidParamError('Nenhum artista encontrado com o nome fornecido.');
 		}
 
-		return artist;
+		return artists;
 	}
 
 	async readAllArtists() {
