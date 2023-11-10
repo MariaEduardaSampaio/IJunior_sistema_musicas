@@ -6,14 +6,26 @@ import { QueryError } from '../../../../errors/QueryError';
 class ArtistService {
 	async createArtist(body: Artist) {
 		if (body.streams < 0) {
-			throw new InvalidParamError('Streams não pode ser menor que 0');
+			throw new InvalidParamError('Streams não pode ser menor que 0.');
+		}
+
+		if (isNaN(body.streams)) {
+			throw new InvalidParamError('Streams deve ser um número.');
+		}
+
+		if (body.streams > Number.MAX_SAFE_INTEGER) {
+			throw new InvalidParamError('Streams excede o valor máximo permitido.');
+		}
+
+		if (body.name.trim() === '') {
+			throw new InvalidParamError('Nome de artista não pode estar vazio.');
 		}
 
 		const createArtist: Artist = await prisma.artist.create({
 			data: {
-				name: body!.name,
+				name: body.name,
 				photo: body.photo,
-				streams: Number(body!.streams),
+				streams: Number(body.streams),
 			}
 		});
 		return createArtist;
