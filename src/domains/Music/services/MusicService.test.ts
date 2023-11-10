@@ -143,10 +143,102 @@ describe('updateMusic', () => {
 		expect(updateSpy).toHaveBeenCalledTimes(1);
 	});
 
-	// TODO: Testar se o id da musica é nulo
 	test('id da musica é nulo ==> Lança erro de Query', async() =>{
+
+		// ARRANGE
+		const mockMusic = {
+			name: 'Your Song',
+			genre: 'Pop',
+			album: 'Elton John',	
+			artistId: 1,
+		} as Music;
+
+		// ACT & ASSERT
+		return expect(
+			() => MusicService.updateMusic(mockMusic)
+		).rejects.toThrow(new QueryError('ID não informado.'));
+
 	});
 
 });
 
-describe('deleteMusic', () => { });
+describe('deleteMusic', () => { 
+
+	beforeEach(() => {
+		jest.restoreAllMocks();
+		jest.clearAllMocks();
+	});
+
+	test('a musica passada como parametro não existe ==> Lança erro de Query', async() =>{
+		// ARRANGE
+		const mockMusic = {
+			id: 1,
+			name: 'Your Song',
+			genre: 'Pop',
+			album: 'Elton John',	
+			artistId: 1,
+		} as Music;
+
+
+		jest.spyOn(prisma.music, 'findUnique')
+			.mockResolvedValue(null);
+
+		// ACT & ASSERT
+		return expect(
+			() => MusicService.deleteMusic(mockMusic.id)
+		).rejects.toThrow(new QueryError('Música não encontrada.'));
+	});
+
+	test('a musica passada como parametro existe ==> Deleta ela', async() =>{
+		// ARRANGE
+		const mockMusic = {
+			id: 1,
+			name: 'Your Song',
+			genre: 'Pop',
+			album: 'Elton John',	
+			artistId: 1,
+		} as Music;
+
+		const findUniqueSpy = jest.spyOn(prisma.music, 'findUnique')
+			.mockResolvedValue(mockMusic);
+
+		const deleteSpy = jest.spyOn(prisma.music, 'delete')
+			.mockResolvedValue(mockMusic);
+
+		// ACT
+		const deletedMusic = await MusicService.deleteMusic(mockMusic.id);
+
+		// ASSERT
+		expect(findUniqueSpy).toHaveBeenCalledWith({
+			where: {
+				id: mockMusic.id,
+			},
+		});
+		expect(findUniqueSpy).toHaveBeenCalledTimes(1);
+		
+		expect(deleteSpy).toHaveBeenCalledWith({
+			where: { id: mockMusic.id }
+		});
+		expect(deleteSpy).toHaveBeenCalledTimes(1);
+		
+		expect(deletedMusic).toEqual(mockMusic);
+	});
+
+	test('id da musica é nulo ==> Lança erro de Query', async() =>{
+		
+		// ARRANGE
+		const mockMusic = {
+			name: 'Your Song',
+			genre: 'Pop',
+			album: 'Elton John',	
+			artistId: 1,
+		} as Music;
+
+		// ACT & ASSERT
+		return expect(
+			() => MusicService.deleteMusic(mockMusic.id)
+		).rejects.toThrow(new QueryError('ID não informado.'));
+
+	});
+
+});
