@@ -61,8 +61,10 @@ class MusicService {
 		return music;
 	}
 
-	//TODO: Verificar nulo nos campos
 	async updateMusic(body: Music) {
+
+		if(!body.id) throw new QueryError('ID não informado.');
+
 		const existMusic = await prisma.music.findUnique({ where: { id: body.id } });
 		if (existMusic === null) {
 			throw new QueryError('Música não encontrada.');
@@ -79,6 +81,9 @@ class MusicService {
 	}
 
 	async deleteMusic(id: number) {
+
+		if(!id) throw new QueryError('ID não informado.');
+
 		const existMusic = await prisma.music.findUnique({ where: { id } });
 		if (existMusic === null) {
 			throw new QueryError('Música não encontrada.');
