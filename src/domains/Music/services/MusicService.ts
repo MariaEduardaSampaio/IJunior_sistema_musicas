@@ -1,6 +1,7 @@
 import prisma from '../../../../config/client';
 import { Music } from '@prisma/client';
 import { QueryError } from '../../../../errors/QueryError';
+import { InvalidParamError } from '../../../../errors/InvalidParamError';
 
 
 class MusicService {
@@ -63,7 +64,7 @@ class MusicService {
 
 	async updateMusic(body: Music) {
 
-		if(!body.id) throw new QueryError('ID não informado.');
+		if(!body.id) throw new InvalidParamError('ID não informado.');
 
 		const existMusic = await prisma.music.findUnique({ where: { id: body.id } });
 		if (existMusic === null) {
@@ -82,7 +83,7 @@ class MusicService {
 
 	async deleteMusic(id: number) {
 
-		if(!id) throw new QueryError('ID não informado.');
+		if(!id) throw new InvalidParamError('ID não informado.');
 
 		const existMusic = await prisma.music.findUnique({ where: { id } });
 		if (existMusic === null) {

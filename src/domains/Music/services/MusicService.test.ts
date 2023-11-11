@@ -2,6 +2,7 @@ import prisma from '../../../../config/client';
 import { Music } from '@prisma/client';
 import MusicService from './MusicService';
 import { QueryError } from '../../../../errors/QueryError';
+import { InvalidParamError } from '../../../../errors/InvalidParamError';
 
 describe('createMusic', () => {
 
@@ -143,7 +144,7 @@ describe('updateMusic', () => {
 		expect(updateSpy).toHaveBeenCalledTimes(1);
 	});
 
-	test('id da musica é nulo ==> Lança erro de Query', async() =>{
+	test('id da musica é nulo ==> Lança erro de InvalidParam', async() =>{
 
 		// ARRANGE
 		const mockMusic = {
@@ -156,7 +157,7 @@ describe('updateMusic', () => {
 		// ACT & ASSERT
 		return expect(
 			() => MusicService.updateMusic(mockMusic)
-		).rejects.toThrow(new QueryError('ID não informado.'));
+		).rejects.toThrow(new InvalidParamError('ID não informado.'));
 
 	});
 
@@ -224,7 +225,7 @@ describe('deleteMusic', () => {
 		expect(deletedMusic).toEqual(mockMusic);
 	});
 
-	test('id da musica é nulo ==> Lança erro de Query', async() =>{
+	test('id da musica é nulo ==> Lança erro de InvalidParam', async() =>{
 		
 		// ARRANGE
 		const mockMusic = {
@@ -237,7 +238,7 @@ describe('deleteMusic', () => {
 		// ACT & ASSERT
 		return expect(
 			() => MusicService.deleteMusic(mockMusic.id)
-		).rejects.toThrow(new QueryError('ID não informado.'));
+		).rejects.toThrow(new InvalidParamError('ID não informado.'));
 
 	});
 
