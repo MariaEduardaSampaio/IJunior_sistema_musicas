@@ -2,6 +2,7 @@ import prisma from '../../../../config/client';
 import { User } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import { QueryError } from '../../../../errors/QueryError';
+import { InvalidParamError } from '../../../../errors/InvalidParamError';
 
 class UserService {
 	async encryptPassword(password: string) {
@@ -14,7 +15,7 @@ class UserService {
 		if(!body.email || 
 			!body.password || 
 			!body.name ||
-			!body.role) throw new QueryError('Campos obrigatórios não preenchidos.'); 
+			!body.role) throw new InvalidParamError('Campos obrigatórios não preenchidos.'); 
 
 		const userEmail = await prisma.user.findUnique({ where: { email: body.email } });
 

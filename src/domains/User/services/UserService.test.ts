@@ -3,6 +3,7 @@ import prisma from '../../../../config/client';
 import { User } from '@prisma/client';
 import { QueryError } from '../../../../errors/QueryError';
 import bcrypt from 'bcrypt';
+import { InvalidParamError } from '../../../../errors/InvalidParamError';
 
 describe('create', () => {
 	beforeEach(() => {
@@ -12,15 +13,17 @@ describe('create', () => {
 
 	test('os dados do usuário são passados como entrada ==> cria esse usuario no banco', async () => {
 		// ARRANGE
+		
+		const mockEncryptedPassword = 'encryptedPassword';
+		const mockPassword = 'password123';
+
 		const mockUser = {
 			name: 'Lucas Paulo',
 			email: 'lucaspaulo@example.com',
-			password: 'password123',
+			password: mockPassword,
 			photo: 'photo.jpg',
 			role: 'ADMIN',
 		} as User;
-
-		const mockEncryptedPassword = 'encryptedPassword';
 
 		// .mockResolvedValue é usado quando a função mockada é async
 		// A função encryptPassword vai retornar sempre 'encryptedPassword'
@@ -33,8 +36,8 @@ describe('create', () => {
 
 		const createSpy = jest.spyOn(prisma.user, 'create')
 			.mockResolvedValue({
-				... mockUser, 
-				password: mockEncryptedPassword
+				...mockUser,
+				password: mockEncryptedPassword,
 			});
 
 		// ACT
@@ -48,8 +51,7 @@ describe('create', () => {
 		});
 		expect(findUniqueSpy).toHaveBeenCalledTimes(1);
 
-		// expect(encryptedPasswordSpy).toHaveBeenCalledWith(mockUser.password);  // A bug here
-		expect(encryptedPasswordSpy).toHaveBeenCalledWith('password123');		
+		expect(encryptedPasswordSpy).toHaveBeenCalledWith(mockPassword);
 		expect(encryptedPasswordSpy).toHaveBeenCalledTimes(1);
 
 		expect(createSpy).toHaveBeenCalledWith({
@@ -65,7 +67,7 @@ describe('create', () => {
 		});
 	});
 
-	test('email do usuário a ser inserido já existe ==> lança uma exceção de Query', async () => {
+	test('email do usuário a ser inserido já existe (mesmo email) ==> lança uma exceção de Query', async () => {
 		// ARRANGE
 		const mockUser = {
 			name: 'Lucas Paulo',
@@ -109,24 +111,40 @@ describe('create', () => {
 
 		// ACT & ASSERT
 		expect(async ()=> { await UserService.create(mockUser); })
-			.rejects.toThrow(new QueryError('Campos obrigatórios não preenchidos.'));
+			.rejects.toThrow(new InvalidParamError('Campos obrigatórios não preenchidos.'));
 
 		mockUser.id = 1;
 		expect(async ()=> { await UserService.create(mockUser); })
-			.rejects.toThrow(new QueryError('Campos obrigatórios não preenchidos.'));
+			.rejects.toThrow(new InvalidParamError('Campos obrigatórios não preenchidos.'));
 
 		mockUser.email = 'lucas-example@gmail.com';
 		expect(async ()=> { await UserService.create(mockUser); })
-			.rejects.toThrow(new QueryError('Campos obrigatórios não preenchidos.'));
+			.rejects.toThrow(new InvalidParamError('Campos obrigatórios não preenchidos.'));
 
 		mockUser.password = 'password123';
 		expect(async ()=> { await UserService.create(mockUser); })
-			.rejects.toThrow(new QueryError('Campos obrigatórios não preenchidos.'));
+			.rejects.toThrow(new InvalidParamError('Campos obrigatórios não preenchidos.'));
 
 		mockUser.name = 'Lucas Paulo';
 		expect(async ()=> { await UserService.create(mockUser); })
-			.rejects.toThrow(new QueryError('Campos obrigatórios não preenchidos.'));
+			.rejects.toThrow(new InvalidParamError('Campos obrigatórios não preenchidos.'));
 		
+	});
+
+	test('usuário com senha vazia ==> lança uma exceção de InvalidParam', async () => {
+		// ARRANGE
+		const mockUser = {
+			name: 'Lucas Paulo',
+			email: 'lucas-example@gmail.com',
+			password: '',
+			photo: 'photo.jpg',
+			role: 'ADMIN',
+		} as User;
+
+		// ACT & ASSERT
+		expect(async ()=> { await UserService.create(mockUser); })
+			.rejects.toThrow(new InvalidParamError('Campos obrigatórios não preenchidos.'));
+
 	});
 });
 
@@ -163,12 +181,11 @@ describe('encryptPassword', () => {
 		// ASSERT
 		expect(encryptedPassword).toEqual(mockEncryptedPassword);
 
-		// FIX HERE
-		// expect(saltSpy).toHaveBeenCalledTimes(1);
-		// expect(saltSpy).toHaveBeenCalledWith(mockSalt);
+		expect(saltSpy).toHaveBeenCalledTimes(1);
+		expect(saltSpy).toHaveBeenCalledWith(mockSalt);
 
-		// expect(bcryptSpy).toHaveBeenCalledTimes(1);
-		// expect(bcryptSpy).toHaveBeenCalledWith(mockPassword, mockGenSalt);
+		expect(bcryptSpy).toHaveBeenCalledTimes(1);
+		expect(bcryptSpy).toHaveBeenCalledWith(mockPassword, mockGenSalt);
 
 	});
 
