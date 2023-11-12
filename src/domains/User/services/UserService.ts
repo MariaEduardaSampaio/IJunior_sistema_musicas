@@ -12,10 +12,10 @@ class UserService {
 	}
 
 	async create(body: User) {
-		if(!body.email || 
-			!body.password || 
+		if (!body.email ||
+			!body.password ||
 			!body.name ||
-			!body.role) throw new InvalidParamError('Campos obrigatórios não preenchidos.'); 
+			!body.role) throw new InvalidParamError('Campos obrigatórios não preenchidos.');
 
 		const userEmail = await prisma.user.findUnique({ where: { email: body.email } });
 
@@ -38,9 +38,13 @@ class UserService {
 	}
 
 	async deleteUser(id: number) {
+		if (!Number.isInteger(id)) {
+			throw new InvalidParamError('ID deve ser um número inteiro válido.');
+		}
+
 		const existeUser = await prisma.user.findUnique({ where: { id } });
 		if (existeUser === null) {
-			throw new QueryError('Usuário não encontrado.');
+			throw new QueryError('Usuário com este ID não foi encontrado.');
 		}
 
 		const user = await prisma.user.delete({
@@ -81,13 +85,17 @@ class UserService {
 	}
 
 	async updateUser(body: User) {
-
-		if (body.password) body.password = await this.encryptPassword(body.password);
-
 		const existeUser = await prisma.user.findUnique({ where: { email: body.email } });
 		if (!existeUser) {
-			throw new QueryError('Não é possível mudar o email.');
+			throw new QueryError('Não é possível atualizar o email.');
 		}
+
+		if (!body.email ||
+			!body.password ||
+			!body.name ||
+			!body.role) throw new InvalidParamError('Campos obrigatórios não preenchidos.');
+
+		if (body.password) body.password = await this.encryptPassword(body.password);
 
 		const user = await prisma.user.update({
 			data: {
@@ -101,6 +109,6 @@ class UserService {
 		});
 		return user;
 	}
-
 }
+
 export default new UserService();
