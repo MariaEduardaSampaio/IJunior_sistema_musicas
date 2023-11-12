@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "jest --verbose",
+    "test": "jest",
     "start": "tsnd --rs --respawn --transpile-only --exit-child index.ts"
   },
   "keywords": [],
