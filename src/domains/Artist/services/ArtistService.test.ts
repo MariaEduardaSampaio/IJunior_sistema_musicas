@@ -238,7 +238,50 @@ describe('readArtistByName', () => {
 		});
 });
 
-describe('readAllArtists', () => { });
+describe('readAllArtists', () => { 
+	beforeEach(() => {
+		jest.restoreAllMocks();
+		jest.clearAllMocks();
+	});
+
+	test('existe pelo menos um artista cadastrado ==> Retorna eles', async () => {
+
+		const mockArtists = [
+			{
+				id: 1,
+				name: 'Jorge Ben',
+				photo: 'photo.jpg',
+				streams: 80910000000,
+			},
+			{
+				id: 2,
+				name: 'Jorge e Mateus',
+				photo: 'photo.jpg',
+				streams: 800,
+			}
+		] as Artist[];
+
+		const findManySpy = jest.spyOn(prisma.artist, 'findMany')
+
+		const artists = await ArtistService.readAllArtists();
+
+		expect(artists).toEqual(mockArtists);
+		expect(findManySpy).toHaveBeenCalledTimes(1);
+
+});
+
+test('não existe nenhum artista cadastrado ==> Lança erro de Query', async () => {
+	const mockArtists = [] as Artist[];
+
+	jest.spyOn(prisma.artist, 'findMany')
+		.mockResolvedValue(mockArtists);
+
+	return expect(
+		() => ArtistService.readAllArtists()
+	).rejects.toThrow('Nenhum artista encontrado.');
+});
+
+});
 
 describe('deleteArtist', () => { });
 
