@@ -285,4 +285,69 @@ test('não existe nenhum artista cadastrado ==> Lança erro de Query', async () 
 
 describe('deleteArtist', () => { });
 
-describe('updateArtist', () => { });
+describe('updateArtist', () => { 
+	beforeEach(() => {
+		jest.restoreAllMocks();
+		jest.clearAllMocks();
+	});
+	
+	test('Tenta atualizar o nome do artista => lança exceção',
+		async () => {
+			const mockArtist = {
+				id: 1,
+				name: 'guilherme',
+				photo: 'photo.jpg',
+				streams: 60000,
+			} as Artist;
+	
+			const findUniqueSpy = jest.spyOn(prisma.artist, 'findUnique').mockResolvedValue(null);
+	
+			const updatedArtist = await ArtistService.updateArtist(mockArtist);
+	
+			expect(findUniqueSpy).toHaveBeenCalledWith(mockArtist.id);
+			expect(findUniqueSpy).toHaveBeenCalledTimes(1);
+			expect(updatedArtist).rejects.toThrow('Não é possível atualizar o nome.');
+		});
+	
+	test('Não preenche parâmetros obrigatórios => lança exceção',
+		async () => {
+			const invalidArtist = {
+				id: 1,
+				name: 'nome do artista',
+				photo: 'photo.jpg',
+				streams: 60000,
+			} as Artist;
+	
+			const findUniqueSpy = jest.spyOn(prisma.artist, 'findUnique').mockResolvedValue(invalidArtist);
+	
+			invalidArtist.name = '';
+	
+			const updatedArtist = await ArtistService.updateArtist(invalidArtist);
+	
+			expect(findUniqueSpy).toHaveBeenCalledWith(invalidArtist.id);
+			expect(findUniqueSpy).toHaveBeenCalledTimes(1);
+			expect(updatedArtist).rejects.toThrow('Campos obrigatórios não preenchidos.');
+		});
+	
+	test('Passa os parâmetros corretamente => atualiza artista',
+		async () => {
+			const validArtist = {
+				id: 1,
+				name: 'lucas',
+				photo: 'photo.jpg',
+				streams: 60000,
+			} as Artist;
+	
+			const findUniqueSpy = jest.spyOn(prisma.artist, 'findUnique').mockResolvedValue(validArtist);
+			const updateSpy = jest.spyOn(prisma.artist, 'update').mockResolvedValue(validArtist);
+	
+			const updatedArtist = await ArtistService.updateArtist(validArtist);
+	
+			expect(findUniqueSpy).toHaveBeenCalledWith(validArtist.id);
+			expect(findUniqueSpy).toHaveBeenCalledTimes(1);
+			expect(updateSpy).toHaveBeenCalledWith({ where: { id: validArtist.id }, data: validArtist });
+			expect(updateSpy).toHaveBeenCalledTimes(1);
+			expect(updatedArtist).toBe(validArtist);
+		});
+	
+});
