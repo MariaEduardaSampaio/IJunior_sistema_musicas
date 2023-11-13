@@ -39,7 +39,10 @@ class UserService {
 
 	async deleteUser(id: number) {
 		if (!Number.isInteger(id)) {
-			throw new InvalidParamError('ID deve ser um número inteiro válido.');
+			throw new InvalidParamError('ID deve ser um número inteiro.');
+		}
+		if (id < 0) {
+			throw new InvalidParamError('ID deve ser um número positivo ou 0.');
 		}
 
 		const existeUser = await prisma.user.findUnique({ where: { id } });
@@ -99,11 +102,11 @@ class UserService {
 
 		const user = await prisma.user.update({
 			data: {
-				name: body!.name,
-				email: body!.email,
+				name: body.name,
+				email: body.email,
 				photo: body.photo,
-				password: body!.password,
-				role: body!.role,
+				password: body.password,
+				role: body.role,
 			},
 			where: { id: body.id }
 		});

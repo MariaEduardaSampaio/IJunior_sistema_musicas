@@ -157,38 +157,25 @@ describe('deleteUser', () => {
 	test('Não existe usuário com o ID passado => lança exceção',
 		async () => {
 			const invalidID = 2;
-			const invalidUser = {
-				id: 1,
-				email: 'tobias@hotmail.com',
-				name: 'tobias',
-				password: '#tobias123#',
-				photo: 'tobias.jpg',
-				role: 'admin',
-			} as User;
 
-			const findUniqueSpy = jest.spyOn(prisma.user, 'findUnique').mockRejectedValue(null);
-
-			const deletedUser = await UserService.deleteUser(invalidID);
-
-			expect(findUniqueSpy).toHaveBeenCalledWith(invalidUser.id);
-			expect(findUniqueSpy).toHaveBeenCalledTimes(1);
-			expect(deletedUser).rejects.toThrow('Usuário com este ID não foi encontrado.');
+			await expect(UserService.deleteUser(invalidID))
+				.rejects.toThrow(new QueryError('Usuário com este ID não foi encontrado.'));
 		});
 
 	test('ID não é um número inteiro => lança exceção',
 		async () => {
-			const invalidUser = {
-				id: 4.2,
-				email: 'junior@hotmail.com',
-				name: 'Junior',
-				password: '#junior123#',
-				photo: 'junior.jpg',
-				role: 'user',
-			} as User;
+			const invalidFloatID = 4.2;
 
-			const deletedUser = await UserService.deleteUser(invalidUser.id);
+			await expect(UserService.deleteUser(invalidFloatID))
+				.rejects.toThrow(new InvalidParamError('ID deve ser um número inteiro.'));
+		});
 
-			expect(deletedUser).rejects.toThrow('ID deve ser um número válido.');
+	test('ID é um número negativo => lança exceção',
+		async () => {
+			const invalidNegativeID = -3;
+
+			await expect(UserService.deleteUser(invalidNegativeID))
+				.rejects.toThrow(new InvalidParamError('ID deve ser um número positivo ou 0.'));
 		});
 
 	test('ID é um número válido que existe no banco => deleta usuário',
@@ -207,11 +194,11 @@ describe('deleteUser', () => {
 
 			const deletedUser = await UserService.deleteUser(validUser.id);
 
-			expect(findUniqueSpy).toHaveBeenCalledWith(validUser.id);
+			expect(findUniqueSpy).toHaveBeenCalledWith({ where: { id: validUser.id } });
 			expect(findUniqueSpy).toHaveBeenCalledTimes(1);
-			expect(deleteSpy).toHaveBeenCalledWith(validUser.id);
+			expect(deleteSpy).toHaveBeenCalledWith({ where: { id: validUser.id } });
 			expect(deleteSpy).toHaveBeenCalledTimes(1);
-			expect(deletedUser).toBe(validUser);
+			expect(deletedUser).toEqual(validUser);
 		});
 });
 
@@ -223,109 +210,118 @@ describe('updateUser', () => {
 
 	test('Tenta atualizar o email => lança exceção',
 		async () => {
-			const mockEncryptedPassword = 'encryptedPassword';
 			const mockUser = {
 				id: 1,
 				email: 'joao@dominio.com',
 				name: 'joao',
-				password: mockEncryptedPassword,
+				password: 'senhaForte@#e2',
 				role: 'admin',
 			} as User;
 
-			const findUniqueSpy = jest.spyOn(prisma.user, 'findUnique').mockResolvedValue(null);
-
-			const updatedUser = await UserService.updateUser(mockUser);
-
-			expect(findUniqueSpy).toHaveBeenCalledWith(mockUser.id);
-			expect(findUniqueSpy).toHaveBeenCalledTimes(1);
-			expect(updatedUser).rejects.toThrow('Não é possível atualizar o email.');
+			await expect(UserService.updateUser(mockUser))
+				.rejects.toThrow(new QueryError('Não é possível atualizar o email.'));
 		});
 
-	describe('Não preenche parâmetros obrigatórios => lança exceção',
+	test('Não preenche nome (param. obrigatório) => lança exceção',
 		async () => {
 			const invalidUser = {
 				id: 1,
 				email: 'email@teste.br',
-				name: 'nome do usuário',
+				name: '',
 				password: 'senha do usuário',
 				role: 'user',
 			} as User;
 
-			const findUniqueSpy = jest.spyOn(prisma.user, 'findUnique').mockResolvedValue(invalidUser);
+			jest.spyOn(prisma.user, 'findUnique').mockResolvedValue(invalidUser);
 
-			test('Não preenche nome => lança exceção',
-				async () => {
-					invalidUser.name = '';
+			await expect(UserService.updateUser(invalidUser))
+				.rejects.toThrow(new InvalidParamError('Campos obrigatórios não preenchidos.'));
 
-					const updatedUser = await UserService.updateUser(invalidUser);
+		});
 
-					expect(findUniqueSpy).toHaveBeenCalledWith(invalidUser.id);
-					expect(findUniqueSpy).toHaveBeenCalledTimes(1);
-					expect(updatedUser).rejects.toThrow('Campos obrigatórios não preenchidos.');
+	test('Não preenche email (param. obrigatório) => lança exceção',
+		async () => {
+			const invalidUser = {
+				id: 1,
+				email: '',
+				name: 'nome do usuario',
+				password: 'senha do usuário',
+				role: 'user',
+			} as User;
 
-				});
+			jest.spyOn(prisma.user, 'findUnique').mockResolvedValue(invalidUser);
 
-			test('Não preenche email => lança exceção',
-				async () => {
-					invalidUser.email = '';
+			await expect(UserService.updateUser(invalidUser))
+				.rejects.toThrow(new InvalidParamError('Campos obrigatórios não preenchidos.'));
 
-					const updatedUser = await UserService.updateUser(invalidUser);
+		});
 
-					expect(findUniqueSpy).toHaveBeenCalledWith(invalidUser.id);
-					expect(findUniqueSpy).toHaveBeenCalledTimes(1);
-					expect(updatedUser).rejects.toThrow('Campos obrigatórios não preenchidos.');
+	test('Não preenche senha (param. obrigatório) => lança exceção',
+		async () => {
+			const invalidUser = {
+				id: 1,
+				email: 'email@teste.br',
+				name: 'nome do usuario',
+				password: '',
+				role: 'user',
+			} as User;
 
-				});
+			jest.spyOn(prisma.user, 'findUnique').mockResolvedValue(invalidUser);
 
-			test('Não preenche senha => lança exceção',
-				async () => {
-					invalidUser.password = '';
+			await expect(UserService.updateUser(invalidUser))
+				.rejects.toThrow(new InvalidParamError('Campos obrigatórios não preenchidos.'));
+		});
 
-					const updatedUser = await UserService.updateUser(invalidUser);
+	test('Não preenche cargo (param. obrigatório) => lança exceção',
+		async () => {
+			const invalidUser = {
+				id: 1,
+				email: 'email@teste.br',
+				name: 'nome do usuario',
+				password: 'senha do usuario',
+				role: '',
+			} as User;
 
-					expect(findUniqueSpy).toHaveBeenCalledWith(invalidUser.id);
-					expect(findUniqueSpy).toHaveBeenCalledTimes(1);
-					expect(updatedUser).rejects.toThrow('Campos obrigatórios não preenchidos.');
+			jest.spyOn(prisma.user, 'findUnique').mockResolvedValue(invalidUser);
 
-				});
-
-			test('Não preenche cargo => lança exceção',
-				async () => {
-					invalidUser.role = '';
-
-					const updatedUser = await UserService.updateUser(invalidUser);
-
-					expect(findUniqueSpy).toHaveBeenCalledWith(invalidUser.id);
-					expect(findUniqueSpy).toHaveBeenCalledTimes(1);
-					expect(updatedUser).rejects.toThrow('Campos obrigatórios não preenchidos.');
-
-				});
+			await expect(UserService.updateUser(invalidUser))
+				.rejects.toThrow(new InvalidParamError('Campos obrigatórios não preenchidos.'));
 		});
 
 	test('Passa os parâmetros corretamente => atualiza usuário',
 		async () => {
 			const mockEncryptedPassword = 'encryptedPassword';
+			const mockPassword = 'password123';
 			const validUser = {
 				id: 1,
 				email: 'lucas@dominio.com',
 				name: 'lucas',
-				password: mockEncryptedPassword,
+				photo: 'photo.jpg',
+				password: mockPassword,
 				role: 'admin',
 			} as User;
 
-			const findUniqueSpy = jest.spyOn(prisma.user, 'findUnique').mockResolvedValue(validUser);
-			const encryptedPasswordSpy = jest.spyOn(UserService, 'encryptPassword').mockResolvedValue(mockEncryptedPassword);
-			const updateSpy = jest.spyOn(prisma.user, 'update').mockResolvedValue(validUser);
+			const findUniqueMock = jest.spyOn(prisma.user, 'findUnique')
+				.mockResolvedValue(validUser);
+			const encryptedPasswordMock = jest.spyOn(UserService, 'encryptPassword')
+				.mockResolvedValue(mockEncryptedPassword);
+			const updateMock = jest.spyOn(prisma.user, 'update')
+				.mockResolvedValue({
+					...validUser,
+					password: mockEncryptedPassword,
+				});
 
 			const updatedUser = await UserService.updateUser(validUser);
 
-			expect(findUniqueSpy).toHaveBeenCalledWith(validUser.email);
-			expect(findUniqueSpy).toHaveBeenCalledTimes(1);
-			expect(encryptedPasswordSpy).toHaveBeenCalledWith(validUser.password);
-			expect(encryptedPasswordSpy).toHaveBeenCalledTimes(1);
-			expect(updateSpy).toHaveBeenCalledWith({ where: { id: validUser.id }, data: validUser });
-			expect(updateSpy).toHaveBeenCalledTimes(1);
-			expect(updatedUser).toBe(validUser);
+			expect(findUniqueMock).toHaveBeenCalledWith({ where: { email: validUser.email }, });
+			expect(findUniqueMock).toHaveBeenCalledTimes(1);
+			expect(encryptedPasswordMock).toHaveBeenCalledWith(mockPassword);
+			expect(encryptedPasswordMock).toHaveBeenCalledTimes(1);
+			expect(updateMock).toHaveBeenCalledTimes(1);
+			await expect(updatedUser).toEqual({
+				...validUser,
+				password: mockEncryptedPassword,
+			});
 		});
 });
 
@@ -338,7 +334,10 @@ describe('readByEmail', () => {
 });
 
 describe('encryptPassword', () => {
-
+	beforeEach(() => {
+		jest.restoreAllMocks();
+		jest.clearAllMocks();
+	});
 	test('a senha é passada como entrada ==> retorna ela criptografada', async () => {
 		// ARRANGE
 		const mockPassword = 'password123';
@@ -356,18 +355,15 @@ describe('encryptPassword', () => {
 		const encryptedPassword = await UserService.encryptPassword(mockPassword);
 
 		// ASSERT
-		expect(encryptedPassword).toEqual(mockEncryptedPassword);
 
-		expect(saltSpy).toHaveBeenCalledTimes(1);
 		expect(saltSpy).toHaveBeenCalledWith(mockSalt);
+		expect(saltSpy).toHaveBeenCalledTimes(1);
 
-		expect(bcryptSpy).toHaveBeenCalledTimes(1);
 		expect(bcryptSpy).toHaveBeenCalledWith(mockPassword, mockGenSalt);
+		expect(bcryptSpy).toHaveBeenCalledTimes(1);
 
+		expect(encryptedPassword).toEqual(mockEncryptedPassword);
 	});
-
-
-
 });
 
 describe('read', () => {
