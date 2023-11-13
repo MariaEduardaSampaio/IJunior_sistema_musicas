@@ -182,7 +182,85 @@ describe('readAll', () => {
 
 });
 
-describe('readByName', () => { });
+describe('readByName', () => { 
+	beforeEach(() => {
+		jest.restoreAllMocks();
+		jest.clearAllMocks();
+	});
+
+	test('nome é vazio => lança exceção',
+		async () => {
+			const invalidMusic = {
+				id: 1,
+				name: '',
+				genre: 'Pop',
+				album: 'Elton John',
+				artistId: 1,
+			} as Music;
+
+			const findManySpy = jest.spyOn(prisma.music, 'findMany').mockResolvedValue([]);
+			const readMusic = await MusicService.readByName(invalidMusic.name);
+
+			expect(findManySpy).toHaveBeenCalledWith(invalidMusic);
+			expect(findManySpy).toHaveBeenCalledTimes(1);
+			expect(readMusic).toHaveBeenCalledWith(invalidMusic.name);
+			expect(readMusic).toHaveBeenCalledTimes(1);
+			expect(readMusic).rejects.toThrow('Nome não pode ser vazio.');
+		});
+
+		test('nome é válido => retorna uma lista de músicas',
+			async () => {
+				const music1 = {
+					id: 1,
+					name: 'Your Song',
+					genre: 'Pop',
+					album: 'Elton John',
+					artistId: 1,
+				} as Music;
+
+				const music2 = {
+					id: 2,
+					name: 'Your Name',
+					genre: 'Pop',
+					album: 'Elton John',
+					artistId: 1,
+				} as Music;
+
+				const findManySpy = jest.spyOn(prisma.music, 'findMany').mockResolvedValue([
+					music1, music2]);
+				const readMusic = await MusicService.readByName('Your');
+
+				expect(findManySpy).toHaveBeenCalledWith(music1.name);
+				expect(findManySpy).toHaveBeenCalledTimes(1);
+				expect(readMusic).toHaveBeenCalledWith(music1.name);
+				expect(readMusic).toHaveBeenCalledTimes(1);
+				expect(readMusic).toEqual([music1, music2]);
+
+			});
+
+		test('Não existe música com este nome => lança uma exceção',
+		async () => {
+			const invalidMusic = {
+				id: 1,
+				name: 'Your Song',
+				genre: 'Pop',
+				album: 'Elton John',
+				artistId: 1,
+			} as Music;
+
+			const findManySpy = jest.spyOn(prisma.music, 'findMany').mockResolvedValue([]);
+			const readMusic = await MusicService.readByName('Mine');
+
+			expect(findManySpy).toHaveBeenCalledWith(invalidMusic.name);
+			expect(findManySpy).toHaveBeenCalledTimes(1);
+			expect(readMusic).toHaveBeenCalledWith('Mine');
+			expect(readMusic).toHaveBeenCalledTimes(1);
+			expect(readMusic).rejects.toThrow('Nenhuma música com esse nome encontrado.');
+
+
+});
+
+});
 
 describe('readById', () => { });
 
