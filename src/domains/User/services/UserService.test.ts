@@ -4,6 +4,7 @@ import { User } from '@prisma/client';
 import { QueryError } from '../../../../errors/QueryError';
 import bcrypt from 'bcrypt';
 import { InvalidParamError } from '../../../../errors/InvalidParamError';
+import { read } from 'fs';
 
 describe('create', () => {
 	beforeEach(() => {
@@ -330,7 +331,72 @@ describe('readUserByID', () => {
 });
 
 describe('readByEmail', () => {
+	beforeEach(() => {
+		jest.restoreAllMocks();
+		jest.clearAllMocks();
+	});
 
+	test('Email é invalido => lança exceção',
+		async () => {
+			const invalidEmail = 'invalido';
+			const user = {
+				id: 1,
+				email: invalidEmail,
+				name: 'nome do usuário',
+				password: 'senha do usuário',
+				role: 'user',
+			} as User;
+
+			const findUniqueSpy = jest.spyOn(prisma.user, 'findUnique').mockResolvedValue(user);
+			const readUser = await UserService.readByEmail(invalidEmail);
+
+			expect(findUniqueSpy).toHaveBeenCalledWith(user.email );
+			expect(findUniqueSpy).toHaveBeenCalledTimes(1);
+			expect(readUser).toHaveBeenCalledWith(user.email);
+			expect(readUser).toHaveBeenCalledTimes(1);
+			expect(readUser).rejects.toThrow('Email deve ser um email válido.');
+		});
+
+	test('Email é válido => retorna um usuário',
+		async () => {
+			const validEmail = 'teste@exemplo.com';
+			const user = {
+				id: 1,
+				email: validEmail,
+				name: 'nome do usuário',
+				password: 'senha do usuário',
+				role: 'user',
+			} as User;
+
+			const findUniqueSpy = jest.spyOn(prisma.user, 'findUnique').mockResolvedValue(user);
+			const readUser = await UserService.readByEmail(validEmail);
+
+			expect(findUniqueSpy).toHaveBeenCalledWith(user.email);
+			expect(findUniqueSpy).toHaveBeenCalledTimes(1);
+			expect(readUser).toHaveBeenCalledWith(user.email);
+			expect(readUser).toHaveBeenCalledTimes(1);
+			expect(readUser).toEqual(user);
+		});
+
+	test('Não existe usuário com este email => lança uma exceção',
+		async () => {
+			const user = {
+				id: 1,
+				email: 'teste@exemplo.com',
+				name: 'nome do usuário',
+				password: 'senha do usuário',
+				role: 'user',
+			} as User;
+
+			const findUniqueSpy = jest.spyOn(prisma.user, 'findUnique').mockResolvedValue(null);
+			const readUser = await UserService.readByEmail('teste1@exemplo.com');
+
+			expect(findUniqueSpy).toHaveBeenCalledWith('teste1@exemplo.com');
+			expect(findUniqueSpy).toHaveBeenCalledTimes(1);
+			expect(readUser).toHaveBeenCalledWith('teste1@exemplo.com');
+			expect(readUser).toHaveBeenCalledTimes(1);
+			expect(readUser).rejects.toThrow('Usuário não encontrado.');
+		});
 });
 
 describe('encryptPassword', () => {
@@ -367,5 +433,61 @@ describe('encryptPassword', () => {
 });
 
 describe('read', () => {
-
+	beforeEach(() => {
+		jest.restoreAllMocks();
+		jest.clearAllMocks();
+	});
+	
+	test('existe pelo menos um usuário cadastrado ==> Retorna eles', async() =>{
+		// ARRANGE
+	
+		const mockUsers = [
+			{
+				id: 1,
+				email: 'teste@exemplo.com',
+				name: 'teste',
+				password: 'senha',
+				role: 'admin',
+			},
+			{
+				id: 2,
+				email: 'teste1@exemplo.com',
+				name: 'teste1',
+				password: 'senha',
+				role: 'user',
+			},
+			{
+				id: 3,
+				email: 'teste2@exemplo.com',
+				name: 'teste2',
+				password: 'senha',
+				role: 'admin',
+			}
+		] as User[];
+	
+		const findManySpy = jest.spyOn(prisma.user, 'findMany')
+			.mockResolvedValue(mockUsers);
+	
+		// ACT
+		const users = await UserService.read();
+	
+		// ASSERT
+		expect(users).toEqual(mockUsers);
+	
+		expect(findManySpy).toHaveBeenCalledTimes(1);
+	});
+	
+	test('não existe nenhum usuário cadastrado ==> Lança erro de Query', async() =>{
+		// ARRANGE
+		const mockUsers = [] as User[];
+	
+		jest.spyOn(prisma.user, 'findMany')
+			.mockResolvedValue(mockUsers);
+	
+		// ACT & ASSERT
+		return expect(
+			() => UserService.read()
+		).rejects.toThrow(new QueryError('Nenhum usuário encontrado.'));
+	});
+	
 });
