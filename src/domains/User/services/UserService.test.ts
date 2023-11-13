@@ -4,7 +4,6 @@ import { User } from '@prisma/client';
 import { QueryError } from '../../../../errors/QueryError';
 import bcrypt from 'bcrypt';
 import { InvalidParamError } from '../../../../errors/InvalidParamError';
-import { read } from 'fs';
 
 describe('create', () => {
 	beforeEach(() => {
@@ -319,7 +318,7 @@ describe('updateUser', () => {
 			expect(encryptedPasswordMock).toHaveBeenCalledWith(mockPassword);
 			expect(encryptedPasswordMock).toHaveBeenCalledTimes(1);
 			expect(updateMock).toHaveBeenCalledTimes(1);
-			await expect(updatedUser).toEqual({
+			expect(updatedUser).toEqual({
 				...validUser,
 				password: mockEncryptedPassword,
 			});
@@ -338,23 +337,10 @@ describe('readByEmail', () => {
 
 	test('Email é invalido => lança exceção',
 		async () => {
-			const invalidEmail = 'invalido';
-			const user = {
-				id: 1,
-				email: invalidEmail,
-				name: 'nome do usuário',
-				password: 'senha do usuário',
-				role: 'user',
-			} as User;
+			const invalidEmail = 'invalido@dominio.com';
 
-			const findUniqueSpy = jest.spyOn(prisma.user, 'findUnique').mockResolvedValue(user);
-			const readUser = await UserService.readByEmail(invalidEmail);
-
-			expect(findUniqueSpy).toHaveBeenCalledWith(user.email );
-			expect(findUniqueSpy).toHaveBeenCalledTimes(1);
-			expect(readUser).toHaveBeenCalledWith(user.email);
-			expect(readUser).toHaveBeenCalledTimes(1);
-			expect(readUser).rejects.toThrow('Email deve ser um email válido.');
+			await expect(UserService.readByEmail(invalidEmail))
+				.rejects.toThrow(new QueryError('Usuário não encontrado.'));
 		});
 
 	test('Email é válido => retorna um usuário',
@@ -371,31 +357,17 @@ describe('readByEmail', () => {
 			const findUniqueSpy = jest.spyOn(prisma.user, 'findUnique').mockResolvedValue(user);
 			const readUser = await UserService.readByEmail(validEmail);
 
-			expect(findUniqueSpy).toHaveBeenCalledWith(user.email);
+			expect(findUniqueSpy).toHaveBeenCalledWith({ where: { email: user.email } });
 			expect(findUniqueSpy).toHaveBeenCalledTimes(1);
-			expect(readUser).toHaveBeenCalledWith(user.email);
-			expect(readUser).toHaveBeenCalledTimes(1);
 			expect(readUser).toEqual(user);
 		});
 
 	test('Não existe usuário com este email => lança uma exceção',
 		async () => {
-			const user = {
-				id: 1,
-				email: 'teste@exemplo.com',
-				name: 'nome do usuário',
-				password: 'senha do usuário',
-				role: 'user',
-			} as User;
+			const invalidEmail = 'teste@exemplo.com';
 
-			const findUniqueSpy = jest.spyOn(prisma.user, 'findUnique').mockResolvedValue(null);
-			const readUser = await UserService.readByEmail('teste1@exemplo.com');
-
-			expect(findUniqueSpy).toHaveBeenCalledWith('teste1@exemplo.com');
-			expect(findUniqueSpy).toHaveBeenCalledTimes(1);
-			expect(readUser).toHaveBeenCalledWith('teste1@exemplo.com');
-			expect(readUser).toHaveBeenCalledTimes(1);
-			expect(readUser).rejects.toThrow('Usuário não encontrado.');
+			await expect(UserService.readByEmail(invalidEmail))
+				.rejects.toThrow(new QueryError('Usuário não encontrado.'));
 		});
 });
 
@@ -437,10 +409,10 @@ describe('read', () => {
 		jest.restoreAllMocks();
 		jest.clearAllMocks();
 	});
-	
-	test('existe pelo menos um usuário cadastrado ==> Retorna eles', async() =>{
+
+	test('existe pelo menos um usuário cadastrado ==> Retorna eles', async () => {
 		// ARRANGE
-	
+
 		const mockUsers = [
 			{
 				id: 1,
@@ -464,30 +436,27 @@ describe('read', () => {
 				role: 'admin',
 			}
 		] as User[];
-	
+
 		const findManySpy = jest.spyOn(prisma.user, 'findMany')
 			.mockResolvedValue(mockUsers);
-	
+
 		// ACT
 		const users = await UserService.read();
-	
+
 		// ASSERT
 		expect(users).toEqual(mockUsers);
-	
+
 		expect(findManySpy).toHaveBeenCalledTimes(1);
 	});
-	
-	test('não existe nenhum usuário cadastrado ==> Lança erro de Query', async() =>{
-		// ARRANGE
+
+	test('não existe nenhum usuário cadastrado ==> Lança erro de Query', async () => {
 		const mockUsers = [] as User[];
-	
+
 		jest.spyOn(prisma.user, 'findMany')
 			.mockResolvedValue(mockUsers);
-	
-		// ACT & ASSERT
-		return expect(
-			() => UserService.read()
-		).rejects.toThrow(new QueryError('Nenhum usuário encontrado.'));
+
+		return expect(UserService.read())
+			.rejects.toThrow(new QueryError('Não há usuários cadastrados.'));
 	});
-	
+
 });

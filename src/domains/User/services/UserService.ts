@@ -84,6 +84,9 @@ class UserService {
 
 	async read() {
 		const users = await prisma.user.findMany();
+		if (users.length == 0) {
+			throw new QueryError('Não há usuários cadastrados.');
+		}
 		return users;
 	}
 
