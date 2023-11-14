@@ -326,7 +326,44 @@ describe('updateUser', () => {
 });
 
 describe('readUserByID', () => {
+	beforeEach(() => {
+		jest.restoreAllMocks();
+		jest.clearAllMocks();
+	});
+	test('ID é NaN => lança exceção',
+		async () => {
+			const invalidID = NaN;
 
+			await expect(UserService.readUserByID(invalidID))
+				.rejects.toThrow(new InvalidParamError('ID deve ser um número.'));
+		});
+
+	test('ID é válido => retorna um usuário',
+		async () => {
+			const user = {
+				id: 1,
+				email: 'lucas@dominio.com',
+				name: 'lucas',
+				photo: 'photo.jpg',
+				password: 'senha',
+				role: 'admin',
+			} as User;
+
+			const findUniqueSpy = jest.spyOn(prisma.user, 'findUnique').mockResolvedValue(user);
+			const readUser = await UserService.readUserByID(user.id);
+			expect(findUniqueSpy).toHaveBeenCalledWith({ where: { id: user.id } });
+			expect(findUniqueSpy).toHaveBeenCalledTimes(1);
+			expect(readUser).toEqual(user);
+		});
+
+		test('Não existe usuário com este ID => lança uma exceção',
+		async () => {
+			const invalidID = 2;
+
+			await expect(UserService.readUserByID(invalidID))
+				.rejects.toThrow(new InvalidParamError('Usuário com este ID não foi encontrado.'));
+		});
+		
 });
 
 describe('readByEmail', () => {
