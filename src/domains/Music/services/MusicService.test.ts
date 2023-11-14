@@ -72,7 +72,67 @@ describe('readAll', () => {
 
 describe('readByName', () => { });
 
-describe('readById', () => { });
+describe('readById', () => { 
+	beforeEach(() => {
+		jest.restoreAllMocks();
+		jest.clearAllMocks();
+	});
+	
+	test('Não existe música com o ID passado => lança exceção',
+		async () => {
+			const invalidID = 2;
+			const invalidMusic = {
+				id: 1,
+				name: 'nome da musica',
+				genre: 'genero',
+				album: 'nome do album',	
+				artistId: 1,
+			} as Music;
+	
+			const findUniqueSpy = jest.spyOn(prisma.music, 'findUnique').mockRejectedValue(null);
+	
+			const music = await MusicService.readById(invalidID);
+	
+			expect(findUniqueSpy).toHaveBeenCalledWith(invalidMusic.id);
+			expect(findUniqueSpy).toHaveBeenCalledTimes(1);
+			expect(music).rejects.toThrow('Música com este ID não foi encontrada.');
+		});
+	
+	test('ID não é um número inteiro => lança exceção',
+		async () => {
+			const invalidMusic = {
+				id: 4.2,
+				name: 'nome da musica',
+				genre: 'genero',
+				album: 'nome do album',
+				artistId: 1,
+			} as Music;
+	
+			const music = await MusicService.readById(invalidMusic.id);
+	
+			expect(music).rejects.toThrow('ID deve ser um número válido.');
+		});
+	
+	test('ID é um número válido que existe no banco => retorna música',
+		async () => {
+			const validMusic = {
+				id: 1,
+				name: 'nome da musica',
+				genre: 'genero',
+				album: 'nome do album',	
+				artistId: 1,
+			} as Music;
+	
+			const findUniqueSpy = jest.spyOn(prisma.music, 'findUnique').mockResolvedValue(validMusic);
+	
+			const music = await MusicService.readById(validMusic.id);
+	
+			expect(findUniqueSpy).toHaveBeenCalledWith(validMusic.id);
+			expect(findUniqueSpy).toHaveBeenCalledTimes(1);
+			expect(music).toBe(validMusic);
+		});
+	});
+	
 
 describe('updateMusic', () => {
 
