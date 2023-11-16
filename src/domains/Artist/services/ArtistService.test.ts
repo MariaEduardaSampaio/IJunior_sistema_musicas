@@ -237,39 +237,35 @@ describe('deleteArtist', () => {
 	});
 
 	test('o artista passado como parametro existe ==> Deleta ele', async () => {
-
 		const mockArtist = {
 			id: 1,
 			name: 'Jorge Ben',
 			photo: 'photo.jpg',
 			streams: 80910000000,
 		} as Artist;
-
+	
 		const findUniqueSpy = jest.spyOn(prisma.artist, 'findUnique')
 			.mockResolvedValue(mockArtist);
-
+	
 		const deleteSpy = jest.spyOn(prisma.artist, 'delete')
 			.mockResolvedValue(mockArtist);
-
-		// ACT
+	
 		const deletedArtist = await ArtistService.deleteArtist(mockArtist.id);
-
-		// ASSERT
+	
 		expect(findUniqueSpy).toHaveBeenCalledWith({
 			where: {
 				id: mockArtist.id,
 			},
 		});
 		expect(findUniqueSpy).toHaveBeenCalledTimes(1);
-
 		expect(deleteSpy).toHaveBeenCalledWith({
 			where: { id: mockArtist.id }
 		});
-
 		expect(deleteSpy).toHaveBeenCalledTimes(1);
-
-		expect(deletedArtist).toEqual(mockArtist);
+		expect(deletedArtist).toBe(mockArtist);
 	});
+	
+	
 
 
 });
