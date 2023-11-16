@@ -330,29 +330,31 @@ describe('readUserByID', () => {
 		jest.restoreAllMocks();
 		jest.clearAllMocks();
 	});
-	test('ID é NaN => lança exceção',
+	
+	test('ID é menor ou igual a zero => lança exceção',
 		async () => {
-			const invalidID = NaN;
+			const invalidNegativeID = -3;
 
-			await expect(UserService.readUserByID(invalidID))
-				.rejects.toThrow(new InvalidParamError('ID deve ser um número.'));
+			await expect(UserService.deleteUser(invalidNegativeID))
+				.rejects.toThrow(new InvalidParamError('ID deve ser um número positivo ou 0.'));
 		});
 
-	test('ID é válido => retorna um usuário',
+		test('ID é válido => retorna um usuário',
 		async () => {
+			const validID = 1;
 			const user = {
 				id: 1,
-				email: 'lucas@dominio.com',
-				name: 'lucas',
-				photo: 'photo.jpg',
-				password: 'senha',
-				role: 'admin',
+				email: 'test@test.com',
+				name: 'nome do usuário',
+				password: 'senha do usuário',
+				role: 'user',
 			} as User;
 
 			const findUniqueSpy = jest.spyOn(prisma.user, 'findUnique').mockResolvedValue(user);
-			const readUser = await UserService.readUserByID(user.id);
+			const readUser = await UserService.readUserByID(validID);
+
 			expect(findUniqueSpy).toHaveBeenCalledWith({ where: { id: user.id } });
-			expect(findUniqueSpy).toHaveBeenCalledTimes(1);
+			expect(findUniqueSpy).toHaveBeenCalledTimes(2);
 			expect(readUser).toEqual(user);
 		});
 
@@ -361,7 +363,7 @@ describe('readUserByID', () => {
 			const invalidID = 2;
 
 			await expect(UserService.readUserByID(invalidID))
-				.rejects.toThrow(new InvalidParamError('Usuário com este ID não foi encontrado.'));
+				.rejects.toThrow(new InvalidParamError('Usuário não encontrado.'));
 		});
 		
 });
