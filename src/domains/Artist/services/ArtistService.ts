@@ -67,8 +67,8 @@ class ArtistService {
 	async readAllArtists() {
 		const artists = await prisma.artist.findMany();
 
-		if (artists === undefined) {
-			throw new QueryError('Erro ao buscar todos os artistas');
+		if (artists.length === 0) {
+			throw new QueryError('Não foi encontrado nenhum artista.');
 		}
 
 		return artists;

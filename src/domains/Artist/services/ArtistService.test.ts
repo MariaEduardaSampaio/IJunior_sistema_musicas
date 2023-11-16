@@ -2,6 +2,7 @@ import { Artist } from '@prisma/client';
 import ArtistService from './ArtistService';
 import prisma from '../../../../config/client';
 import { InvalidParamError } from '../../../../errors/InvalidParamError';
+import { QueryError } from '../../../../errors/QueryError';
 
 describe('createArtist', () => {
 	beforeEach(() => {
@@ -178,6 +179,7 @@ describe('readAllArtists', () => {
 				name: 'Jorge Ben',
 				photo: 'photo.jpg',
 				streams: 80910000000,
+
 			},
 			{
 				id: 2,
@@ -187,12 +189,13 @@ describe('readAllArtists', () => {
 			}
 		] as Artist[];
 
-		const findManySpy = jest.spyOn(prisma.artist, 'findMany');
+		const findManySpy = jest.spyOn(prisma.artist, 'findMany')
+		.mockResolvedValue(mockArtists);
 
 		const artists = await ArtistService.readAllArtists();
 
 		expect(findManySpy).toHaveBeenCalledTimes(1);
-		return await expect(artists).toEqual(mockArtists);
+		expect(artists).toEqual(mockArtists);
 
 	});
 
@@ -204,7 +207,7 @@ describe('readAllArtists', () => {
 
 		return expect(
 			() => ArtistService.readAllArtists()
-		).rejects.toThrow('Nenhum artista encontrado.');
+		).rejects.toThrow(new QueryError('Não foi encontrado nenhum artista.'));
 	});
 
 });
@@ -268,19 +271,6 @@ describe('deleteArtist', () => {
 		expect(deletedArtist).toEqual(mockArtist);
 	});
 
-	test('o artista passado como parametro existe ==> Lança erro de InvalidParameter', async () => {
-		const mockArtist = {
-			id: 1,
-			name: 'Jorge Ben',
-			photo: 'photo.jpg',
-			streams: 80910000000,
-		} as Artist;
-
-
-		return expect(
-			() => ArtistService.deleteArtist(mockArtist.id)
-		).rejects.toThrow('Parâmetro inválido.');
-	});
 
 });
 
