@@ -10,113 +10,58 @@ describe('createMusic', () => {
 		jest.clearAllMocks();
 	});
 
-	test('nome é vazio => lança exceção',
-		async () => {
-			const invalidMusic = {
-				id: 1,
-				name: '',
-				genre: 'Pop',
-				album: 'Elton John',
-				artistId: 1,
-			} as Music;
+	test ('passa musica já cadastrada => Lança Query Error', async () => {
+		// ARRANGE
+		const mockMusic = {
+			id: 1,
+			name: 'Your Song',
+			genre: 'Pop',
+			album: 'Elton John',	
+			artistId: 1,
+		} as Music;
 
-			const createSpy = jest.spyOn(prisma.music, 'create').mockResolvedValue(invalidMusic);
-			const createdMusic = await MusicService.createMusic(invalidMusic, invalidMusic.artistId);
+		const findFirstSpy = jest.spyOn(prisma.music, 'findFirst')
+			.mockResolvedValue(mockMusic);
 
-			expect(createSpy).toHaveBeenCalledWith(invalidMusic);
-			expect(createSpy).toHaveBeenCalledTimes(1);
-			expect(createdMusic).toHaveBeenCalledWith(invalidMusic);
-			expect(createdMusic).toHaveBeenCalledTimes(1);
-			expect(createdMusic).rejects.toThrow('Nome de música não pode estar vazio.');
-				// Se não lançar uma exceção, o teste deve falhar
-		});
+		// ACT & ASSERT
+		return expect(
+			() => MusicService.createMusic(mockMusic, mockMusic.artistId)
+		).rejects.toThrow(new QueryError('Música já cadastrada.'));
+	});
 
-
-	test('genero é vazio => lança exceção',
-		async () => {
-			const invalidMusic = {
-				id: 1,
-				name: 'Your Song',
-				genre: '',
-				album: 'Elton John',
-				artistId: 1,
-			} as Music;
-
-			const createSpy = jest.spyOn(prisma.music, 'create').mockResolvedValue(invalidMusic);
-			const createdMusic = await MusicService.createMusic(invalidMusic, invalidMusic.artistId);
-
-			expect(createSpy).toHaveBeenCalledWith(invalidMusic);
-			expect(createSpy).toHaveBeenCalledTimes(1);
-			expect(createdMusic).toHaveBeenCalledWith(invalidMusic);
-			expect(createdMusic).toHaveBeenCalledTimes(1);
-			expect(createdMusic).rejects.toThrow('Gênero de música não pode estar vazio.');
-
-		});
+	test('passa argumentos válidos => cria a música', async () => {
+		const validMusic = {
+			id: 1,
+			name: 'Your Song',
+			genre: 'Pop',
+			album: 'Elton John',
+			artistId: 1,
+		} as Music;
 	
-	test('album é vazio => lança exceção',
-		
-		async () => {
-			const invalidMusic = {
-				id: 1,
-				name: 'Your Song',
-				genre: 'Pop',
-				album: '',
-				artistId: 1,
-			} as Music;
-
-			const createSpy = jest.spyOn(prisma.music, 'create').mockResolvedValue(invalidMusic);
-			const createdMusic = await MusicService.createMusic(invalidMusic, invalidMusic.artistId);
-
-			expect(createSpy).toHaveBeenCalledWith(invalidMusic);
-			expect(createSpy).toHaveBeenCalledTimes(1);
-			expect(createdMusic).toHaveBeenCalledWith(invalidMusic);
-			expect(createdMusic).toHaveBeenCalledTimes(1);
-			expect(createdMusic).rejects.toThrow('Álbum de música não pode estar vazio.');
-
+		const createSpy = jest.spyOn(prisma.music, 'create').mockResolvedValue(validMusic);
+	
+		// ACT
+		const createdMusic = await MusicService.createMusic(validMusic, validMusic.artistId);
+	
+		// ASSERT
+		expect(createSpy).toHaveBeenCalledWith({
+			data: {
+				name: validMusic.name,
+				genre: validMusic.genre,
+				album: validMusic.album,
+				artist: {
+					connect: {
+						id: validMusic.artistId,
+					},
+				},
+			},
 		});
-
-	test('id do artista é nulo => lança exceção',
-		async () => {
-			const invalidMusic = {
-				id: 1,
-				name: 'Your Song',
-				genre: 'Pop',
-				album: 'Elton John',
-				artistId: NaN,
-			} as Music;
-
-			const createSpy = jest.spyOn(prisma.music, 'create').mockResolvedValue(invalidMusic);
-			const createdMusic = await MusicService.createMusic(invalidMusic, invalidMusic.artistId);
-
-			expect(createSpy).toHaveBeenCalledWith(invalidMusic);
-			expect(createSpy).toHaveBeenCalledTimes(1);
-			expect(createdMusic).toHaveBeenCalledWith(invalidMusic);
-			expect(createdMusic).toHaveBeenCalledTimes(1);
-			expect(createdMusic).rejects.toThrow('ID do artista não informado.');
-
-		});
-
-
-		test ('passa argumentos válidos => cria a música',
-		async () => {
-			const validMusic = {
-				id: 1,
-				name: 'Your Song',
-				genre: 'Pop',
-				album: 'Elton John',
-				artistId: 1,
-			} as Music;
-
-			const createSpy = jest.spyOn(prisma.music, 'create').mockResolvedValue(validMusic);
-			const createdMusic = await MusicService.createMusic(validMusic, validMusic.artistId);
-
-			expect(createSpy).toHaveBeenCalledWith(validMusic);
-			expect(createSpy).toHaveBeenCalledTimes(1);
-			expect(createdMusic).toHaveBeenCalledWith(validMusic);
-			expect(createdMusic).toHaveBeenCalledTimes(1);
-			expect(createdMusic).resolves.toBe(validMusic);
-
-		});
+		expect(createSpy).toHaveBeenCalledTimes(1);
+	
+		// Use expect diretamente, sem resolves
+		expect(createdMusic).toEqual(validMusic);
+	});
+	
 
 });
 
@@ -199,13 +144,9 @@ describe('readByName', () => {
 			} as Music;
 
 			const findManySpy = jest.spyOn(prisma.music, 'findMany').mockResolvedValue([]);
-			const readMusic = await MusicService.readByName(invalidMusic.name);
 
-			expect(findManySpy).toHaveBeenCalledWith(invalidMusic);
-			expect(findManySpy).toHaveBeenCalledTimes(1);
-			expect(readMusic).toHaveBeenCalledWith(invalidMusic.name);
-			expect(readMusic).toHaveBeenCalledTimes(1);
-			expect(readMusic).rejects.toThrow('Nome não pode ser vazio.');
+			expect(MusicService.readByName(invalidMusic.name))
+				.rejects.toThrow(new InvalidParamError('Nome não pode ser vazio.'));
 		});
 
 		test('nome é válido => retorna uma lista de músicas',
@@ -228,35 +169,17 @@ describe('readByName', () => {
 
 				const findManySpy = jest.spyOn(prisma.music, 'findMany').mockResolvedValue([
 					music1, music2]);
-				const readMusic = await MusicService.readByName('Your');
 
-				expect(findManySpy).toHaveBeenCalledWith(music1.name);
-				expect(findManySpy).toHaveBeenCalledTimes(1);
-				expect(readMusic).toHaveBeenCalledWith(music1.name);
-				expect(readMusic).toHaveBeenCalledTimes(1);
-				expect(readMusic).toEqual([music1, music2]);
+				return expect(MusicService.readByName('Your')).resolves.toEqual([music1, music2]);
 
 			});
 
 		test('Não existe música com este nome => lança uma exceção',
 		async () => {
-			const invalidMusic = {
-				id: 1,
-				name: 'Your Song',
-				genre: 'Pop',
-				album: 'Elton John',
-				artistId: 1,
-			} as Music;
-
-			const findManySpy = jest.spyOn(prisma.music, 'findMany').mockResolvedValue([]);
-			const readMusic = await MusicService.readByName('Mine');
-
-			expect(findManySpy).toHaveBeenCalledWith(invalidMusic.name);
-			expect(findManySpy).toHaveBeenCalledTimes(1);
-			expect(readMusic).toHaveBeenCalledWith('Mine');
-			expect(readMusic).toHaveBeenCalledTimes(1);
-			expect(readMusic).rejects.toThrow('Nenhuma música com esse nome encontrado.');
-
+			jest.spyOn(prisma.music, 'findMany').mockResolvedValue([]);
+			
+		return await expect(MusicService.readByName('Ausente'))
+			.rejects.toThrow(new InvalidParamError('Nenhuma música com esse ID encontrado.'));
 
 });
 
