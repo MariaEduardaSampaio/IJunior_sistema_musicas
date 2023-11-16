@@ -75,7 +75,7 @@ class ArtistService {
 	}
 
 	async deleteArtist(id: number) {
-		const existeArtist = await prisma.user.findUnique({ where: { id } });
+		const existeArtist = await prisma.artist.findUnique({ where: { id } });
 		if (existeArtist === null) {
 			throw new QueryError('Artista não encontrado.');
 		}
