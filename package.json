@@ -4,6 +4,7 @@
   "main": "index.js",
   "scripts": {
     "test": "jest --verbose",
+    "testMusic": "jest MusicService.test.ts --verbose",
     "start": "tsnd --rs --respawn --transpile-only --exit-child index.ts"
   },
   "keywords": [],
