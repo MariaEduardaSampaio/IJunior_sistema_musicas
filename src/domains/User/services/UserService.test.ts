@@ -330,7 +330,7 @@ describe('readUserByID', () => {
 		jest.restoreAllMocks();
 		jest.clearAllMocks();
 	});
-	
+
 	test('ID é menor ou igual a zero => lança exceção',
 		async () => {
 			const invalidNegativeID = -3;
@@ -339,7 +339,7 @@ describe('readUserByID', () => {
 				.rejects.toThrow(new InvalidParamError('ID deve ser um número positivo ou 0.'));
 		});
 
-		test('ID é válido => retorna um usuário',
+	test('ID é válido => retorna um usuário',
 		async () => {
 			const validID = 1;
 			const user = {
@@ -358,14 +358,14 @@ describe('readUserByID', () => {
 			expect(readUser).toEqual(user);
 		});
 
-		test('Não existe usuário com este ID => lança uma exceção',
+	test('Não existe usuário com este ID => lança uma exceção',
 		async () => {
 			const invalidID = 2;
 
 			await expect(UserService.readUserByID(invalidID))
 				.rejects.toThrow(new InvalidParamError('Usuário não encontrado.'));
 		});
-		
+
 });
 
 describe('readByEmail', () => {
