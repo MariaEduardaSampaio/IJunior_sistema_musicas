@@ -3,18 +3,32 @@ import { Artist } from '@prisma/client';
 import { InvalidParamError } from '../../../../errors/InvalidParamError';
 import { QueryError } from '../../../../errors/QueryError';
 
+function verifyIfValidStreams(streams: number) {
+	if (streams < 0) {
+		throw new InvalidParamError('Streams não pode ser menor que 0.');
+	}
+
+	if (isNaN(streams)) {
+		throw new InvalidParamError('Streams deve ser um número.');
+	}
+
+	if (streams > Number.MAX_SAFE_INTEGER) {
+		throw new InvalidParamError('Streams excede o valor máximo permitido.');
+	}
+}
 class ArtistService {
 	async createArtist(body: Artist) {
-		if (body.streams < 0) {
-			throw new InvalidParamError('Streams não pode ser menor que 0');
+		verifyIfValidStreams(body.streams);
+
+		if (body.name.trim() === '') {
+			throw new InvalidParamError('Nome de artista não pode estar vazio.');
 		}
 
-		// corrigir: não está barrando valores nulos no create
 		const createArtist: Artist = await prisma.artist.create({
 			data: {
-				name: body!.name,
+				name: body.name,
 				photo: body.photo,
-				streams: Number(body!.streams),
+				streams: Number(body.streams),
 			}
 		});
 		return createArtist;
@@ -22,41 +36,49 @@ class ArtistService {
 	}
 
 	async readArtistByID(id: number) {
+		if (isNaN(id)) {
+			throw new InvalidParamError('ID deve ser um número.');
+		}
+
 		const artistID = await prisma.artist.findUnique({
 			where: { id }
 		});
 
 		if (artistID === null) {
-			throw new InvalidParamError('Artista não encontrado');
+			throw new InvalidParamError('Artista não encontrado.');
 		}
 
 		return artistID;
 	}
 
 	async readArtistByName(name: string) {
-		const artist = await prisma.artist.findMany({
+		if (name === '') {
+			throw new InvalidParamError('Nome não pode ser vazio.');
+		}
+
+		const artists = await prisma.artist.findMany({
 			where: { name }
 		});
 
-		if (artist === null) {
-			throw new InvalidParamError('Artista não encontrado');
+		if (artists.length == 0) {
+			throw new InvalidParamError('Nenhum artista encontrado com o nome fornecido.');
 		}
 
-		return artist;
+		return artists;
 	}
 
 	async readAllArtists() {
 		const artists = await prisma.artist.findMany();
 
-		if (artists === undefined) {
-			throw new QueryError('Erro ao buscar todos os artistas');
+		if (artists.length === 0) {
+			throw new QueryError('Não foi encontrado nenhum artista.');
 		}
 
 		return artists;
 	}
 
 	async deleteArtist(id: number) {
-		const existeArtist = await prisma.user.findUnique({ where: { id } });
+		const existeArtist = await prisma.artist.findUnique({ where: { id } });
 		if (existeArtist === null) {
 			throw new QueryError('Artista não encontrado.');
 		}
@@ -69,14 +91,17 @@ class ArtistService {
 	}
 
 	async updateArtist(body: Artist) {
-		if (body.streams < 0) {
-			throw new InvalidParamError('Streams não pode ser menor que 0');
+		verifyIfValidStreams(body.streams);
+
+		if (body.name.trim() == '') {
+			throw new InvalidParamError('Nome não pode ser vazio');
 		}
+
 		const artist = await prisma.artist.update({
 			data: {
-				name: body!.name,
+				name: body.name,
 				photo: body.photo,
-				streams: Number(body!.streams),
+				streams: Number(body.streams),
 			},
 			where: { id: body.id }
 		});
