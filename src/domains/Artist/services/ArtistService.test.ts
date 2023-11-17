@@ -190,7 +190,7 @@ describe('readAllArtists', () => {
 		] as Artist[];
 
 		const findManySpy = jest.spyOn(prisma.artist, 'findMany')
-		.mockResolvedValue(mockArtists);
+			.mockResolvedValue(mockArtists);
 
 		const artists = await ArtistService.readAllArtists();
 
@@ -243,18 +243,18 @@ describe('deleteArtist', () => {
 			photo: 'photo.jpg',
 			streams: 80910000000,
 		} as Artist;
-	
+
 		const findUniqueSpy = jest.spyOn(prisma.artist, 'findUnique')
 			.mockResolvedValue(validArtist);
-	
+
 		const deleteSpy = jest.spyOn(prisma.artist, 'delete')
 			.mockResolvedValue(validArtist);
-	
+
 		const deletedArtist = await ArtistService.deleteArtist(validArtist.id);
-	
-		expect(findUniqueSpy).toHaveBeenCalledWith({ where: { id: validArtist.id}});
+
+		expect(findUniqueSpy).toHaveBeenCalledWith({ where: { id: validArtist.id } });
 		expect(findUniqueSpy).toHaveBeenCalledTimes(1);
-		expect(deleteSpy).toHaveBeenCalledWith({ where: { id: validArtist.id }});
+		expect(deleteSpy).toHaveBeenCalledWith({ where: { id: validArtist.id } });
 		expect(deleteSpy).toHaveBeenCalledTimes(1);
 		expect(deletedArtist).toBe(validArtist);
 	});
@@ -267,42 +267,52 @@ describe('updateArtist', () => {
 		jest.clearAllMocks();
 	});
 
-	test('Tenta atualizar o nome do artista => lança exceção',
+	test('Tenta atualizar o numero de streams para um numero negativo => lança exceção',
 		async () => {
-			const mockArtist = {
-				id: 1,
-				name: 'guilherme',
-				photo: 'photo.jpg',
-				streams: 60000,
+			const invalidArtist = {
+				name: 'João',
+				streams: -10,
 			} as Artist;
 
-			const findUniqueSpy = jest.spyOn(prisma.artist, 'findUnique').mockResolvedValue(null);
-
-			const updatedArtist = await ArtistService.updateArtist(mockArtist);
-
-			expect(findUniqueSpy).toHaveBeenCalledWith(mockArtist.id);
-			expect(findUniqueSpy).toHaveBeenCalledTimes(1);
-			expect(updatedArtist).rejects.toThrow('Não é possível atualizar o nome.');
+			return await expect(ArtistService.updateArtist(invalidArtist))
+				.rejects.toThrow(new InvalidParamError('Streams não pode ser menor que 0.'));
 		});
 
-	test('Não preenche parâmetros obrigatórios => lança exceção',
+	test('Tenta atualizar o numero de streams para um NaN => lança exceção',
+		async () => {
+			const invalidArtist = {
+				name: 'João',
+				streams: NaN,
+			} as Artist;
+
+			return await expect(ArtistService.updateArtist(invalidArtist))
+				.rejects.toThrow(new InvalidParamError('Streams deve ser um número.'));
+		});
+
+	test('Tenta atualizar o numero de streams para maior que o valor máximo permitido => lança exceção',
+		async () => {
+			const invalidArtist = {
+				name: 'João',
+				streams: Number.MAX_SAFE_INTEGER + 1,
+			} as Artist;
+
+			return await expect(ArtistService.updateArtist(invalidArtist))
+				.rejects.toThrow(new InvalidParamError('Streams excede o valor máximo permitido.'));
+		});
+
+	test('Não preenche nome (parâmetro obrigatório) => lança exceção',
 		async () => {
 			const invalidArtist = {
 				id: 1,
-				name: 'nome do artista',
+				name: '',
 				photo: 'photo.jpg',
 				streams: 60000,
 			} as Artist;
 
-			const findUniqueSpy = jest.spyOn(prisma.artist, 'findUnique').mockResolvedValue(invalidArtist);
+			jest.spyOn(prisma.artist, 'findUnique').mockResolvedValue(invalidArtist);
 
-			invalidArtist.name = '';
-
-			const updatedArtist = await ArtistService.updateArtist(invalidArtist);
-
-			expect(findUniqueSpy).toHaveBeenCalledWith(invalidArtist.id);
-			expect(findUniqueSpy).toHaveBeenCalledTimes(1);
-			expect(updatedArtist).rejects.toThrow('Campos obrigatórios não preenchidos.');
+			await expect(ArtistService.updateArtist(invalidArtist))
+				.rejects.toThrow(new InvalidParamError('Nome não pode ser vazio'));
 		});
 
 	test('Passa os parâmetros corretamente => atualiza artista',
@@ -314,16 +324,10 @@ describe('updateArtist', () => {
 				streams: 60000,
 			} as Artist;
 
-			const findUniqueSpy = jest.spyOn(prisma.artist, 'findUnique').mockResolvedValue(validArtist);
-			const updateSpy = jest.spyOn(prisma.artist, 'update').mockResolvedValue(validArtist);
+			jest.spyOn(prisma.artist, 'findUnique').mockResolvedValue(validArtist);
+			jest.spyOn(prisma.artist, 'update').mockResolvedValue(validArtist);
 
-			const updatedArtist = await ArtistService.updateArtist(validArtist);
-
-			expect(findUniqueSpy).toHaveBeenCalledWith(validArtist.id);
-			expect(findUniqueSpy).toHaveBeenCalledTimes(1);
-			expect(updateSpy).toHaveBeenCalledWith({ where: { id: validArtist.id }, data: validArtist });
-			expect(updateSpy).toHaveBeenCalledTimes(1);
-			expect(updatedArtist).toBe(validArtist);
+			return expect(await ArtistService.updateArtist(validArtist)).toEqual(validArtist);
 		});
 
 });

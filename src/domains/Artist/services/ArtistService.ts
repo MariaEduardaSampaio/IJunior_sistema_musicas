@@ -3,19 +3,22 @@ import { Artist } from '@prisma/client';
 import { InvalidParamError } from '../../../../errors/InvalidParamError';
 import { QueryError } from '../../../../errors/QueryError';
 
+function verifyIfValidStreams(streams: number) {
+	if (streams < 0) {
+		throw new InvalidParamError('Streams não pode ser menor que 0.');
+	}
+
+	if (isNaN(streams)) {
+		throw new InvalidParamError('Streams deve ser um número.');
+	}
+
+	if (streams > Number.MAX_SAFE_INTEGER) {
+		throw new InvalidParamError('Streams excede o valor máximo permitido.');
+	}
+}
 class ArtistService {
 	async createArtist(body: Artist) {
-		if (body.streams < 0) {
-			throw new InvalidParamError('Streams não pode ser menor que 0.');
-		}
-
-		if (isNaN(body.streams)) {
-			throw new InvalidParamError('Streams deve ser um número.');
-		}
-
-		if (body.streams > Number.MAX_SAFE_INTEGER) {
-			throw new InvalidParamError('Streams excede o valor máximo permitido.');
-		}
+		verifyIfValidStreams(body.streams);
 
 		if (body.name.trim() === '') {
 			throw new InvalidParamError('Nome de artista não pode estar vazio.');
@@ -88,14 +91,17 @@ class ArtistService {
 	}
 
 	async updateArtist(body: Artist) {
-		if (body.streams < 0) {
-			throw new InvalidParamError('Streams não pode ser menor que 0');
+		verifyIfValidStreams(body.streams);
+
+		if (body.name.trim() == '') {
+			throw new InvalidParamError('Nome não pode ser vazio');
 		}
+
 		const artist = await prisma.artist.update({
 			data: {
-				name: body!.name,
+				name: body.name,
 				photo: body.photo,
-				streams: Number(body!.streams),
+				streams: Number(body.streams),
 			},
 			where: { id: body.id }
 		});
