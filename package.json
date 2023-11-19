@@ -3,12 +3,11 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "testAll": "jest",
+    "test": "jest",
     "testUser": "jest UserService.test.ts",
     "testArtist": "jest ArtistService.test.ts",
     "testMusic": "jest MusicService.test.ts",
-    "start": "tsnd --rs --respawn --transpile-only --exit-child index.ts",
-    "test": "jest"
+    "start": "tsnd --rs --respawn --transpile-only --exit-child index.ts"
   },
   "keywords": [],
   "author": "",
